@@ -1,0 +1,172 @@
+@import "tailwindcss";
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  --font-logo: "Montserrat", "Arial Black", sans-serif;
+  --font-head: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", system-ui, sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-accent: #FC5300;
+  --color-accent-hot: #ff7a2e;
+}
+
+:root {
+  --bg: #0a0a0c;
+  --bg-subtle: #0d0d10;
+  --panel: #111215;
+  --panel-elevated: #16181d;
+  --line: #25272c;
+  --line-light: #34363c;
+  --fg: #f5f2ee;
+  --fg-secondary: #e4e1dc;
+  --muted: #b4b0aa;
+  --accent: #FC5300;
+  --accent-hot: #ff7a2e;
+  color-scheme: dark;
+}
+
+:root.light, [data-theme="light"], .light {
+  --bg: #f8f9fa;
+  --bg-subtle: #f1f3f6;
+  --panel: #ffffff;
+  --panel-elevated: #f8fafc;
+  --line: #e2e8f0;
+  --line-light: #cbd5e1;
+  --fg: #0f172a;
+  --fg-secondary: #334155;
+  --muted: #64748b;
+  --accent: #FC5300;
+  --accent-hot: #ff7a2e;
+  color-scheme: light;
+}
+
+body {
+  font-family: var(--font-body);
+  background-color: var(--bg);
+  color: var(--fg);
+  overflow-x: hidden;
+  line-height: 1.5;
+  transition: background-color 0.2s ease, color 0.2s ease;
+}
+
+.font-logo {
+  font-family: var(--font-logo);
+}
+
+.font-head {
+  font-family: var(--font-head);
+}
+
+.font-body {
+  font-family: var(--font-body);
+}
+
+/* Custom scrollbars */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--line-light);
+  border-radius: 3px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #FC5300;
+}
+
+/* ==========================================================================
+   FitMeet Live Hero Animation Keyframes & Interactive Effects
+   ========================================================================== */
+
+@keyframes rotIn {
+  from {
+    opacity: 0;
+    transform: translateY(40%);
+    filter: blur(6px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+    filter: none;
+  }
+}
+
+@keyframes hop {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-14%) scale(1.06, 0.94); }
+  70% { transform: translateY(2%) scale(0.96, 1.04); }
+  100% { transform: none; }
+}
+
+@keyframes fmBlink {
+  50% { opacity: 0.2; }
+}
+
+@keyframes burst {
+  0% {
+    opacity: 1;
+    transform: translate(-50%, -50%) scale(0.4);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy))) rotate(var(--r));
+  }
+}
+
+@keyframes rip {
+  to {
+    transform: scale(4);
+    opacity: 0;
+  }
+}
+
+.fm-orb .fm-cbody {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+}
+
+.fm-orb.hop .fm-cbody {
+  animation: hop 0.7s cubic-bezier(0.3, 1.6, 0.5, 1);
+}
+
+.fm-orb:focus-visible .fm-cbody {
+  filter: drop-shadow(0 0 6px #fff);
+}
+
+.fm-taphint {
+  animation: fmBlink 1.6s infinite;
+}
+
+.pc {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 11px;
+  height: 11px;
+  border-radius: 3px;
+  pointer-events: none;
+  z-index: 50;
+}
+
+.rip {
+  position: absolute;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(0);
+  animation: rip 0.6s ease-out forwards;
+  pointer-events: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero-live-scene *,
+  .fm-orb.hop .fm-cbody,
+  .pc {
+    animation: none !important;
+    transition: none !important;
+  }
+}

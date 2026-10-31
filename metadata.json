@@ -1,0 +1,6 @@
+{
+  "name": "FITMEET — Fitness Event Discovery & Collaboration Platform",
+  "description": "Connecting fitness enthusiasts, gyms, coaches, and brands. Discover community runs, gym meetups, and co-hosted fitness events across India.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

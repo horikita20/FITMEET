@@ -1,0 +1,491 @@
+<!doctype html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Join FitMeet Patna for community runs, fitness meetups, new connections and gym collaborations."><meta name="theme-color" content="#0a0a0c"><title>FitMeet Patna — Run Together. Grow Together.</title><style>:root{color-scheme:light;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}html{scroll-padding-top:env(safe-area-inset-top,0px)}body{margin:0;padding:0;font:14px -apple-system,BlinkMacSystemFont,sans-serif;background:#fff;color:#000}img{max-width:100%}[hidden]:not([hidden=until-found i]){display:none!important}</style></head><body>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Barlow:wght@400;500;600&family=Barlow+Condensed:wght@500;600;700&family=Montserrat:ital,wght@1,800;1,900&display=swap">
+<style>
+/* Layout: dark gym-floor landing page. Full-bleed bands, 1200px inner wrapper, hero photo bleeding in from the right, 5-up feature strip, then event / gallery / partner bands. Collapses to a single column with a menu button on phones. */
+:root {
+  --bg: #0a0a0c;
+  --panel: #111215;
+  --line: #25272c;
+  --fg: #f5f2ee;
+  --muted: #b4b0aa;
+  --accent: #ff5a0a;
+  --accent-hot: #ff7a2e;
+  --font-logo: "Montserrat", "Arial Black", sans-serif;
+  --font-head: "Barlow Condensed", "Arial Narrow", sans-serif;
+  --font-body: "Barlow", system-ui, sans-serif;
+  color-scheme: dark;
+}
+* { box-sizing: border-box; }
+html { scroll-behavior: smooth; }
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--font-body);
+  font-size: 16px;
+  line-height: 1.5;
+  padding-block: 0;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  overflow-x: hidden;
+}
+a { color: inherit; text-decoration: none; }
+h1, h2, h3, p { margin: 0; }
+.wrap { max-width: 1200px; margin-inline: auto; }
+.bleed { margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px))); padding-left: max(16px, env(safe-area-inset-left, 0px)); padding-right: max(16px, env(safe-area-inset-right, 0px)); }
+.ico { width: 1em; height: 1em; stroke: currentColor; fill: none; stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; flex: none; }
+:focus-visible { outline: 2px solid var(--accent-hot); outline-offset: 3px; }
+
+/* logo */
+.logo { display: inline-flex; flex-direction: column; align-items: center; line-height: 1; font-family: var(--font-logo); font-style: italic; font-weight: 900; text-transform: uppercase; }
+.logo .mark { font-size: 1em; letter-spacing: -0.02em; white-space: nowrap; }
+.logo .mark b { font-weight: 900; color: #fff; }
+.logo .mark i { font-style: italic; color: var(--accent); }
+.logo small { font-size: 0.34em; font-weight: 800; letter-spacing: 0.9em; margin-right: -0.9em; margin-top: 0.35em; color: #fff; }
+
+/* buttons */
+.btn { display: inline-flex; align-items: center; justify-content: center; gap: 10px; font-family: var(--font-body); font-weight: 600; font-size: 15px; padding: 13px 24px; border-radius: 6px; border: 1.5px solid transparent; cursor: pointer; transition: background .2s, border-color .2s, transform .2s; }
+.btn-fill { background: var(--accent); color: #fff; }
+.btn-fill:hover { background: var(--accent-hot); transform: translateY(-1px); }
+.btn-line { border-color: #fff; color: #fff; background: rgba(0,0,0,.25); }
+.btn-line:hover { border-color: var(--accent); color: var(--accent-hot); }
+.btn-ghost { border-color: var(--accent); color: #fff; padding: 10px 22px; font-size: 14px; }
+.btn-ghost:hover { background: var(--accent); }
+.btn-sm { padding: 10px 20px; font-size: 14px; }
+
+/* header */
+header.top { position: sticky; top: env(safe-area-inset-top, 0px); z-index: 20; background: rgba(10,10,12,.94); backdrop-filter: blur(8px); border-bottom: 1px solid #16171a; }
+body::before { content: ""; position: fixed; inset: 0 0 auto; height: env(safe-area-inset-top, 0px); z-index: 30; background: #0a0a0c; }
+.nav { display: flex; align-items: center; justify-content: space-between; gap: 24px; min-height: 72px; }
+.nav .logo { font-size: 30px; }
+.nav ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 30px; }
+.nav ul a { font-size: 14px; font-weight: 500; color: #e9e6e1; padding: 26px 0 22px; border-bottom: 2px solid transparent; transition: color .2s; }
+.nav ul a:hover, .nav ul a.on { color: var(--accent-hot); border-color: var(--accent); }
+.menu-btn { display: none; background: none; border: 0; color: #fff; width: 44px; height: 44px; cursor: pointer; font-size: 28px; }
+.menu-btn svg { width: 1em; height: 1em; stroke: #fff; stroke-width: 2; stroke-linecap: round; }
+
+/* hero */
+.hero { position: relative; isolation: isolate; border-bottom: 1px solid #16171a; }
+.hero-photo { position: absolute; z-index: -1; top: 0; right: 0; bottom: 0; width: 62%; background: url("https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=85") center 30% / cover no-repeat; }
+.hero-photo::after { content: ""; position: absolute; inset: 0; background: linear-gradient(90deg, var(--bg) 0%, rgba(10,10,12,.78) 22%, rgba(10,10,12,0) 60%), linear-gradient(0deg, rgba(10,10,12,.7), rgba(10,10,12,0) 30%); }
+.hero-inner { padding-block: 40px 40px; max-width: 1200px; margin-inline: auto; }
+.hero-copy { max-width: 560px; }
+.eyebrow { font-family: var(--font-head); font-weight: 600; font-size: 19px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent); }
+.hero .logo { font-size: clamp(54px, 9vw, 112px); align-items: flex-start; margin-top: 14px; }
+.hero .logo small { letter-spacing: 1.05em; margin-left: 0.4em; margin-top: 0.3em; font-size: 0.3em; }
+.hero h1 { font-family: var(--font-head); font-weight: 700; font-size: clamp(34px, 5vw, 48px); line-height: 1.05; text-transform: uppercase; margin-top: 26px; text-wrap: balance; }
+.hero h1 span { color: var(--accent); display: block; }
+.hero p.lead { margin-top: 18px; font-size: 17px; line-height: 1.5; max-width: 470px; }
+.hero-cta { display: flex; gap: 16px; flex-wrap: wrap; margin-top: 28px; }
+.hero-cta .btn { min-width: 150px; }
+.facts { display: flex; flex-wrap: wrap; gap: 20px 34px; margin-top: 36px; }
+.fact { display: flex; align-items: center; gap: 12px; }
+.fact .ico { font-size: 36px; color: var(--accent); stroke-width: 1.7; }
+.fact strong { display: block; font-family: var(--font-body); font-size: 13px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.02em; line-height: 1.25; }
+.fact span { display: block; font-size: 11.5px; color: var(--muted); line-height: 1.3; }
+
+/* feature strip */
+.strip { background: #0d0d10; border-bottom: 1px solid #16171a; }
+.strip-grid { max-width: 1200px; margin-inline: auto; display: grid; grid-template-columns: repeat(5, 1fr); padding-block: 36px; }
+.feat { padding-inline: 22px; text-align: left; border-left: 1px solid var(--line); }
+.feat:first-child { border-left: 0; padding-left: 0; }
+.feat .ico { font-size: 44px; color: var(--accent); stroke-width: 1.5; }
+.feat h3 { font-family: var(--font-head); font-weight: 700; font-size: 19px; line-height: 1.1; text-transform: uppercase; margin-top: 14px; }
+.feat p { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-top: 8px; max-width: 150px; }
+
+/* about */
+.about-grid { max-width: 1200px; margin-inline: auto; display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 56px; align-items: center; padding-block: 44px; }
+.kicker { font-family: var(--font-head); font-weight: 600; font-size: 16px; letter-spacing: 0.02em; text-transform: uppercase; color: var(--accent); }
+.h2 { font-family: var(--font-head); font-weight: 700; font-size: clamp(32px, 4.4vw, 44px); line-height: 1.05; text-transform: uppercase; margin-top: 10px; text-wrap: balance; }
+.h2 em { font-style: normal; color: var(--accent); }
+.about p.body { margin-top: 18px; font-size: 15.5px; color: #e4e1dc; max-width: 440px; }
+.about .btn-ghost { margin-top: 22px; }
+.photo { position: relative; border-radius: 6px; overflow: hidden; background: var(--panel); }
+.photo img { display: block; width: 100%; height: 100%; object-fit: cover; }
+.about .photo { aspect-ratio: 2.08 / 1; }
+
+/* event */
+.event { background: #0c0c0f; border-block: 1px solid #16171a; }
+.event-grid { max-width: 1200px; margin-inline: auto; display: grid; grid-template-columns: 0.78fr 1.22fr; gap: 28px; align-items: center; padding-block: 30px; }
+.event .photo { aspect-ratio: 1.55 / 1; border: 1px solid var(--line); }
+.event-body { display: grid; grid-template-columns: 1fr auto; gap: 18px 28px; align-items: start; }
+.event-body .kicker { grid-column: 1 / -1; font-size: 14px; }
+.event-body h2 { grid-column: 1 / -1; font-family: var(--font-head); font-weight: 700; font-size: clamp(26px, 3.2vw, 32px); text-transform: uppercase; line-height: 1.05; margin-top: -10px; }
+.details { list-style: none; margin: 0; padding: 0; display: grid; gap: 10px; }
+.details li { display: flex; align-items: center; gap: 12px; font-size: 15px; }
+.details .ico { font-size: 20px; color: var(--accent); }
+.event-right { grid-column: 2; grid-row: 3 / span 2; display: flex; flex-direction: column; gap: 22px; }
+.details { grid-column: 1; grid-row: 3; }
+.event-note { grid-column: 1; grid-row: 4; font-size: 13.5px; color: var(--muted); max-width: 340px; align-self: end; }
+.countdown { display: flex; gap: 12px; }
+.cd { width: 64px; text-align: center; border: 1px solid #34363c; border-radius: 6px; padding: 7px 0 6px; background: #0a0a0c; }
+.cd b { display: block; font-family: var(--font-head); font-weight: 700; font-size: 27px; line-height: 1; font-variant-numeric: tabular-nums; }
+.cd span { display: block; font-size: 11px; color: var(--muted); margin-top: 3px; }
+.event-aside { display: flex; flex-direction: column; gap: 14px; align-items: center; }
+.event-aside .btn { width: 100%; }
+.event-aside small { font-size: 12px; color: var(--muted); }
+
+/* gallery */
+.gallery { padding-block: 24px 26px; }
+.gal-head { max-width: 1200px; margin-inline: auto; display: flex; justify-content: space-between; align-items: end; gap: 16px; }
+.gal-head h2 { font-family: var(--font-head); font-weight: 700; font-size: 26px; text-transform: uppercase; margin-top: 4px; }
+.gal-head .link { display: inline-flex; align-items: center; gap: 8px; font-size: 13.5px; font-weight: 500; }
+.gal-head .link .ico { color: var(--accent); font-size: 16px; }
+.gal-grid { max-width: 1200px; margin: 18px auto 0; display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+.gal-grid .photo { aspect-ratio: 1.48 / 1; border-radius: 4px; }
+.gal-grid img { transition: transform .5s; }
+.gal-grid .photo:hover img { transform: scale(1.05); }
+
+/* partner */
+.partner { background: #0c0c0f; border-block: 1px solid #16171a; }
+.partner-grid { max-width: 1200px; margin-inline: auto; display: grid; grid-template-columns: 0.8fr 1fr 1fr; gap: 28px; align-items: center; padding-block: 26px; }
+.partner .photo { aspect-ratio: 1.42 / 1; }
+.partner h2 { font-family: var(--font-head); font-weight: 700; font-size: clamp(28px, 3.4vw, 36px); text-transform: uppercase; line-height: 1.05; margin-top: 6px; }
+.partner .copy p { font-size: 14px; color: #e4e1dc; margin-top: 12px; max-width: 320px; }
+.partner .btn-ghost { margin-top: 18px; padding: 9px 20px; font-size: 13.5px; }
+.who { display: grid; gap: 14px; border-left: 1px solid var(--line); padding-left: 32px; }
+.who-item { display: flex; gap: 16px; align-items: flex-start; }
+.who-item .ico { font-size: 34px; color: var(--accent); margin-top: 2px; }
+.who-item h3 { font-family: var(--font-body); font-weight: 600; font-size: 12.5px; text-transform: uppercase; letter-spacing: 0.02em; }
+.who-item p { font-size: 12.5px; color: var(--muted); line-height: 1.4; margin-top: 3px; max-width: 220px; }
+
+/* final cta */
+.cta { position: relative; isolation: isolate; border-bottom: 1px solid #16171a; overflow: hidden; background: linear-gradient(100deg, #1a0a02 0%, #3a1303 35%, #7a2a05 70%, #b33f06 100%); }
+.cta::before { content: ""; position: absolute; inset: 0; z-index: -1; background: url("https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=85") right center / cover; opacity: .18; mix-blend-mode: luminosity; }
+.cta-grid { max-width: 1200px; margin-inline: auto; display: grid; grid-template-columns: auto 1fr auto; gap: 32px; align-items: center; padding-block: 28px; }
+.cta h2 { font-family: var(--font-head); font-weight: 700; font-size: clamp(30px, 3.6vw, 38px); line-height: 1; text-transform: uppercase; }
+.cta h2 span { display: block; color: #fff; }
+.cta p { font-size: 14px; max-width: 360px; padding-left: 32px; border-left: 1px solid rgba(255,255,255,.28); }
+
+/* footer */
+footer { background: #0a0a0c; }
+.foot { max-width: 1200px; margin-inline: auto; display: flex; align-items: center; justify-content: space-between; gap: 24px; padding-block: 26px 22px; flex-wrap: wrap; }
+.foot .logo { font-size: 28px; }
+.foot ul { list-style: none; margin: 0; padding: 0; display: flex; gap: 28px; flex-wrap: wrap; }
+.foot ul a { font-size: 13px; color: #e9e6e1; }
+.foot ul a:hover { color: var(--accent-hot); }
+.social { display: flex; gap: 14px; }
+.social a { display: grid; place-items: center; width: 36px; height: 36px; color: #fff; font-size: 20px; }
+.social a:hover { color: var(--accent-hot); }
+.copy-line { max-width: 1200px; margin-inline: auto; text-align: right; font-size: 11px; color: #8d8a85; padding-bottom: 24px; }
+
+/* phone */
+@media (max-width: 960px) {
+  .strip-grid { grid-template-columns: repeat(3, 1fr); row-gap: 28px; }
+  .feat:nth-child(4) { border-left: 0; padding-left: 0; }
+  .about-grid { grid-template-columns: 1fr; gap: 28px; }
+  .event-grid { grid-template-columns: 1fr; }
+  .partner-grid { grid-template-columns: 1fr 1fr; }
+  .partner .photo { grid-column: 1 / -1; aspect-ratio: 2 / 1; }
+  .who { border-left: 0; padding-left: 0; }
+  .nav ul { gap: 20px; }
+}
+@media (max-width: 760px) {
+  .nav { min-height: 60px; }
+  .nav .logo { font-size: 24px; }
+  .nav > .btn { display: none; }
+  .menu-btn { display: block; }
+  .nav ul { display: none; position: absolute; top: 100%; left: 0; right: 0; flex-direction: column; gap: 0; background: #0d0d10; border-bottom: 1px solid var(--line); padding: 8px max(16px, env(safe-area-inset-left, 0px)) 14px; }
+  .nav ul.open { display: flex; }
+  .nav ul a { display: block; padding: 13px 0; border-bottom: 1px solid #1b1c20; }
+  .hero-photo { position: relative; z-index: 0; width: auto; height: 150px; margin-inline: calc(-1 * max(16px, env(safe-area-inset-left, 0px))) calc(-1 * max(16px, env(safe-area-inset-right, 0px))); }
+  .hero-photo::after { background: linear-gradient(0deg, var(--bg), rgba(10,10,12,0) 60%); }
+  .hero-inner { padding-block: 6px 28px; }
+  .hero .logo { font-size: clamp(48px, 17vw, 72px); }
+  .eyebrow { font-size: 14px; }
+  .hero h1 { font-size: 26px; margin-top: 18px; }
+  .hero p.lead { font-size: 13.5px; }
+  .hero-cta { margin-top: 20px; gap: 10px; }
+  .hero-cta .btn { min-width: 0; padding: 11px 18px; font-size: 13px; }
+  .facts { flex-wrap: nowrap; gap: 8px; justify-content: space-between; }
+  .fact { flex-direction: column; text-align: center; gap: 6px; flex: 1; min-width: 0; }
+  .fact .ico { font-size: 30px; }
+  .fact strong { font-size: 10.5px; }
+  .fact span { font-size: 9.5px; }
+  .strip-grid { grid-template-columns: 1fr; padding-block: 20px; row-gap: 0; }
+  .feat { display: grid; grid-template-columns: 52px 1fr; column-gap: 14px; align-items: start; border-left: 0; padding: 16px 0; border-top: 1px solid #16171a; }
+  .feat:first-child { border-top: 0; }
+  .feat:nth-child(4) { padding-left: 0; }
+  .feat .ico { grid-row: span 2; font-size: 36px; }
+  .feat h3 { font-size: 15px; margin-top: 0; letter-spacing: 0.02em; }
+  .feat p { max-width: none; margin-top: 2px; font-size: 12px; }
+  .about .photo { display: none; }
+  .about-grid { padding-block: 28px 10px; }
+  .event-body { grid-template-columns: 1fr; }
+  .event-body h2 { margin-top: -6px; font-size: 24px; }
+  .event .photo { display: none; }
+  .event-note { display: none; }
+  .event-right, .details { grid-column: 1; grid-row: auto; }
+  .countdown { gap: 10px; }
+  .cd { flex: 1; width: auto; }
+  .gal-head { align-items: end; }
+  .gal-head .link { display: none; }
+  .gal-grid { grid-template-columns: repeat(5, 1fr); gap: 4px; }
+  .gal-grid .photo { aspect-ratio: 0.9 / 1; }
+  .partner-grid { grid-template-columns: 1fr; text-align: left; }
+  .partner .photo { display: none; }
+  .who { display: none; }
+  .cta-grid { grid-template-columns: 1fr; gap: 14px; text-align: left; padding-block: 24px; }
+  .cta p { display: none; }
+  .cta .btn { justify-self: start; }
+  .foot { justify-content: space-between; }
+  .foot ul { display: none; }
+  .copy-line { text-align: center; }
+}
+@media (max-width: 760px) { .faq-grid { grid-template-columns: 1fr !important; } .contact-wrap { grid-template-columns: 1fr !important; } }
+@media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } * { transition: none !important; } }
+</style>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <symbol id="i-cal" viewBox="0 0 24 24"><rect x="3.5" y="5" width="17" height="15.5" rx="2"/><path d="M3.5 10h17M8 3v4M16 3v4M7.5 14h2M11 14h2M14.5 14h2M7.5 17h2M11 17h2"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 24 24"><path d="M12 21.5s7-6.1 7-11.7a7 7 0 0 0-14 0c0 5.6 7 11.7 7 11.7z"/><circle cx="12" cy="9.8" r="2.6"/></symbol>
+  <symbol id="i-people" viewBox="0 0 24 24"><circle cx="12" cy="8" r="2.8"/><circle cx="5.2" cy="10" r="2.1"/><circle cx="18.8" cy="10" r="2.1"/><path d="M6.8 19.5v-2.2a5.2 5.2 0 0 1 10.4 0v2.2zM1.8 18v-1.4a3.6 3.6 0 0 1 4.6-3.4M22.2 18v-1.4a3.6 3.6 0 0 0-4.6-3.4"/></symbol>
+  <symbol id="i-dumb" viewBox="0 0 24 24"><rect x="2.5" y="8" width="3" height="8" rx="1"/><rect x="5.5" y="5.5" width="3" height="13" rx="1"/><rect x="15.5" y="5.5" width="3" height="13" rx="1"/><rect x="18.5" y="8" width="3" height="8" rx="1"/><path d="M8.5 12h7"/></symbol>
+  <symbol id="i-coach" viewBox="0 0 24 24"><circle cx="14" cy="4.8" r="2.1"/><path d="M12.5 8.6 9.2 13.4l3.2 1.3 1 5.8M12.5 8.6l3.3 3.2 3-.6M9.2 13.4l-3.9.5M16 7.4l2.2-2.3"/><path d="M5 20.5h2"/></symbol>
+  <symbol id="i-gym" viewBox="0 0 24 24"><rect x="4" y="3.5" width="16" height="17" rx="2"/><path d="M4 8.5h16M9 8.5v12M15 8.5v12M4 14.5h16"/><circle cx="12" cy="6" r=".6"/></symbol>
+  <symbol id="i-mount" viewBox="0 0 24 24"><path d="M2.5 20 10.5 5l4 7.2 2.2-3.2 4.8 11zM8 11.8l2.5 2.4 2-2"/></symbol>
+  <symbol id="i-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="8.5"/><path d="M12 7.2V12l3.2 2"/></symbol>
+  <symbol id="i-arrow" viewBox="0 0 24 24"><path d="M5 12h14M13 6l6 6-6 6"/></symbol>
+  <symbol id="i-play" viewBox="0 0 24 24"><path d="M7 4.5v15l12.5-7.5z" fill="currentColor" stroke="none"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 24 24"><rect x="3.5" y="3.5" width="17" height="17" rx="5"/><circle cx="12" cy="12" r="4"/><circle cx="17" cy="7" r=".6" fill="currentColor"/></symbol>
+  <symbol id="i-yt" viewBox="0 0 24 24"><rect x="2.5" y="5.5" width="19" height="13" rx="4"/><path d="M10 9.2v5.6l5-2.8z" fill="currentColor"/></symbol>
+  <symbol id="i-x" viewBox="0 0 24 24"><path d="M4.5 4.5l15 15M19.5 4.5l-15 15"/></symbol>
+  <symbol id="i-menu" viewBox="0 0 24 24"><path d="M4 7h16M4 12h16M4 17h16"/></symbol>
+</svg>
+
+<header class="top bleed">
+  <nav class="nav wrap" aria-label="Main">
+    <a href="#home" class="logo" aria-label="FitMeet Patna"><span class="mark"><b>FIT</b><i>MEET</i></span><small>PATNA</small></a>
+    <ul id="menu">
+      <li><a href="#home" class="on">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#partner">Gyms &amp; Brands</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#faqs">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <a class="btn btn-fill btn-sm" href="#events">Register Now <svg class="ico"><use href="#i-arrow"/></svg></a>
+    <button class="menu-btn" id="menuBtn" aria-label="Open menu" aria-expanded="false" aria-controls="menu"><svg viewBox="0 0 24 24"><use href="#i-menu"/></svg></button>
+  </nav>
+</header>
+
+<main>
+<section class="hero bleed" id="home">
+  <div class="hero-photo" role="img" aria-label="Crowd of people training together in a gym"></div>
+  <div class="hero-inner">
+    <div class="hero-copy">
+      <p class="eyebrow">Patna's Running & Fitness Community</p>
+      <div class="logo" aria-label="FitMeet Patna"><span class="mark"><b>FIT</b><i>MEET</i></span><small>PATNA</small></div>
+      <h1>Challenge Yourself. <span>Expand Your Circle.</span></h1>
+      <p class="lead">Fitness challenges, gym visits, expert coaches, new friendships and real experiences — all in one community. Every Sunday.</p>
+      <div class="hero-cta">
+        <a class="btn btn-fill" href="#events">Register Now <svg class="ico"><use href="#i-arrow"/></svg></a>
+        <a class="btn btn-line" href="#gallery"><svg class="ico" style="fill:currentColor"><use href="#i-play"/></svg> Watch Video</a>
+      </div>
+      <div class="facts">
+        <div class="fact"><svg class="ico"><use href="#i-cal"/></svg><div><strong>Every Sunday</strong><span>(No time, just show up)</span></div></div>
+        <div class="fact"><svg class="ico"><use href="#i-pin"/></svg><div><strong>Patna, Bihar</strong><span>(Various Gyms &amp; Outdoor)</span></div></div>
+        <div class="fact"><svg class="ico"><use href="#i-people"/></svg><div><strong>All Fitness Levels</strong><span>(Beginner to Advanced)</span></div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="strip bleed" aria-label="What you get">
+  <div class="strip-grid">
+    <div class="feat"><svg class="ico"><use href="#i-dumb"/></svg><h3>Fitness<br>Challenges</h3><p>Strength, endurance, HIIT, fun games &amp; more.</p></div>
+    <div class="feat"><svg class="ico"><use href="#i-people"/></svg><h3>Meet Your<br>People</h3><p>Make new friends, become stronger together.</p></div>
+    <div class="feat"><svg class="ico"><use href="#i-coach"/></svg><h3>Connect With<br>Coaches</h3><p>Learn, get guidance and build valuable connections.</p></div>
+    <div class="feat"><svg class="ico"><use href="#i-gym"/></svg><h3>Discover<br>New Gyms</h3><p>Explore different gyms, equipment &amp; fitness culture.</p></div>
+    <div class="feat"><svg class="ico"><use href="#i-mount"/></svg><h3>Gym &amp; Outdoor<br>Experiences</h3><p>From top gyms to open-air sessions — experience it all.</p></div>
+  </div>
+</section>
+
+<section class="about bleed" id="about">
+  <div class="about-grid">
+    <div>
+      <p class="kicker">About FitMeet Patna</p>
+      <h2 class="h2">More than a workout.<br>It's a <em>movement.</em></h2>
+      <p class="body">FitMeet Patna is a growing fitness community that brings together people who want to challenge themselves, make new friends, learn from great coaches and explore different gyms — all while having fun.</p>
+      <a class="btn btn-ghost" href="#events">Learn More <svg class="ico"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="photo"><img src="https://images.unsplash.com/photo-1517836357463-d25dfeac3438?auto=format&fit=crop&w=1200&q=85" alt="Community training together outdoors on a Sunday" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+  </div>
+</section>
+
+<section class="event bleed" id="events">
+  <div class="event-grid">
+    <div class="photo"><img src="https://images.unsplash.com/photo-1517963879433-6ad2b056d712?auto=format&fit=crop&w=1200&q=85" alt="Gym floor set up for FitMeet 01" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="event-body">
+      <p class="kicker">Upcoming Event</p>
+      <h2>FitMeet Sunday Run & Fitness Meetup</h2>
+      <ul class="details">
+        <li><svg class="ico"><use href="#i-cal"/></svg>Sunday — date to be confirmed</li>
+        <li><svg class="ico"><use href="#i-clock"/></svg>Time to be announced</li>
+        <li><svg class="ico"><use href="#i-pin"/></svg>Patna, Bihar (venue confirmation after registration)</li>
+      </ul>
+      <div class="event-right">
+        <div class="countdown" role="timer" aria-label="Time until the next Sunday session">
+          <div class="cd"><b id="cdD">03</b><span>Days</span></div>
+          <div class="cd"><b id="cdH">14</b><span>Hours</span></div>
+          <div class="cd"><b id="cdM">27</b><span>Minutes</span></div>
+          <div class="cd"><b id="cdS">16</b><span>Seconds</span></div>
+        </div>
+        <div class="event-aside">
+          <a class="btn btn-fill" href="#contact">Register Now <svg class="ico"><use href="#i-arrow"/></svg></a>
+          <small>Limited Slots Available</small>
+        </div>
+      </div>
+      <p class="event-note">Strength challenges, fitness games, fun activities, snacks and more. Be part of the movement!</p>
+    </div>
+  </div>
+</section>
+
+<section class="gallery bleed" id="gallery">
+  <div class="gal-head">
+    <div><p class="kicker">Event Gallery</p><h2>Moments from our Sunday sessions</h2></div>
+    <a class="link" href="#gallery">View All Photos <svg class="ico"><use href="#i-arrow"/></svg></a>
+  </div>
+  <div class="gal-grid">
+    <div class="photo"><img src="https://images.unsplash.com/photo-1534438327276-14e5300c3a48?auto=format&fit=crop&w=600&q=80" alt="Group warm-up in the gym" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="photo"><img src="https://images.unsplash.com/photo-1518611012118-696072aa579a?auto=format&fit=crop&w=600&q=80" alt="Outdoor session in the park" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="photo"><img src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=600&q=80" alt="Community gathered in front of the banner" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="photo"><img src="https://images.unsplash.com/photo-1583454110551-21f2fa2afe61?auto=format&fit=crop&w=600&q=80" alt="Tire flips and strength challenge" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="photo"><img src="https://images.unsplash.com/photo-1517838277536-fc2b1a9f5f95?auto=format&fit=crop&w=600&q=80" alt="Members posing after the session" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+  </div>
+</section>
+
+<section class="partner bleed" id="partner">
+  <div class="partner-grid">
+    <div class="photo"><img src="https://images.unsplash.com/photo-1571019613454-1cb2f99b2d8b?auto=format&fit=crop&w=1000&q=85" alt="Coaches working with members" loading=\"lazy\" onerror=\"this.style.display='none'\"></div>
+    <div class="copy">
+      <p class="kicker">Gym &amp; Brand Collaboration</p>
+      <h2>Partner with FitMeet</h2>
+      <p>Are you a gym, fitness brand or coach? Collaborate with us to host events, promote your products, and connect with a growing fitness community in Patna.</p>
+      <a class="btn btn-ghost" href="#contact">Partner With Us <svg class="ico"><use href="#i-arrow"/></svg></a>
+    </div>
+    <div class="who">
+      <div class="who-item"><svg class="ico"><use href="#i-cal"/></svg><div><h3>For Gyms</h3><p>Host events, showcase your facility, grow your member base.</p></div></div>
+      <div class="who-item"><svg class="ico"><use href="#i-gym"/></svg><div><h3>For Brands</h3><p>Get brand visibility, reach fitness enthusiasts, create real engagement.</p></div></div>
+      <div class="who-item"><svg class="ico"><use href="#i-coach"/></svg><div><h3>For Coaches</h3><p>Share your expertise, train, inspire and grow your community.</p></div></div>
+    </div>
+  </div>
+</section>
+
+<section class="cta bleed" aria-label="Join">
+  <div class="cta-grid">
+    <h2>Ready to take<span>on the challenge?</span></h2>
+    <p>Join FitMeet Patna and be part of a growing community that values fitness, fun and real connections.</p>
+    <a class="btn btn-fill" href="#events">Register Now <svg class="ico"><use href="#i-arrow"/></svg></a>
+  </div>
+</section>
+</main>
+
+
+<section class="faq bleed" id="faqs" style="border-top:1px solid #25272c;padding:36px 0;background:#0d0d10">
+  <div class="wrap">
+    <p class="kicker">Good to know</p>
+    <h2 class="h2">Frequently asked <em>questions</em></h2>
+    <div class="faq-grid" style="display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:22px">
+      <details style="border:1px solid #25272c;border-radius:6px;padding:16px;background:#111215"><summary style="cursor:pointer;font-weight:600">Do I need to be a professional runner?</summary><p style="color:#b4b0aa;margin-top:10px">No. Beginners and experienced runners are welcome. Choose a comfortable pace and take part at your own level.</p></details>
+      <details style="border:1px solid #25272c;border-radius:6px;padding:16px;background:#111215"><summary style="cursor:pointer;font-weight:600">How do I register?</summary><p style="color:#b4b0aa;margin-top:10px">Use any Register Now button and submit the short form. The demo prepares an email with your details for you to send.</p></details>
+      <details style="border:1px solid #25272c;border-radius:6px;padding:16px;background:#111215"><summary style="cursor:pointer;font-weight:600">Where is the meetup held?</summary><p style="color:#b4b0aa;margin-top:10px">The event is listed in Patna, Bihar. Confirm the exact venue with the organizer before attending.</p></details>
+      <details style="border:1px solid #25272c;border-radius:6px;padding:16px;background:#111215"><summary style="cursor:pointer;font-weight:600">Can a gym or brand collaborate?</summary><p style="color:#b4b0aa;margin-top:10px">Yes. Use the contact form and select the relevant collaboration option.</p></details>
+    </div>
+  </div>
+</section>
+<section class="contact bleed" id="contact" style="border-top:1px solid #25272c;padding:36px 0;background:#0a0a0c">
+  <div class="wrap contact-wrap" style="display:grid;grid-template-columns:0.8fr 1.2fr;gap:32px;align-items:start">
+    <div><p class="kicker">Join the community</p><h2 class="h2">Let’s make your <em>next move.</em></h2><p style="color:#b4b0aa;margin-top:14px;max-width:380px">Register interest for an upcoming run or ask about gym, coach and brand collaborations.</p><p style="margin-top:18px;color:#b4b0aa;font-size:14px">Demo form: opens an email draft. Connect a form service or backend to collect submissions automatically.</p></div>
+    <form id="contactForm" style="display:grid;gap:12px">
+      <label for="fullName" style="font-weight:600">Your name</label><input id="fullName" name="name" required autocomplete="name" placeholder="Enter your name" style="padding:13px;border:1px solid #34363c;border-radius:5px;background:#111215;color:#fff;font:inherit">
+      <label for="email" style="font-weight:600">Email address</label><input id="email" name="email" type="email" required autocomplete="email" placeholder="you@example.com" style="padding:13px;border:1px solid #34363c;border-radius:5px;background:#111215;color:#fff;font:inherit">
+      <label for="interest" style="font-weight:600">I’m interested in</label><select id="interest" name="interest" style="padding:13px;border:1px solid #34363c;border-radius:5px;background:#111215;color:#fff;font:inherit"><option>Joining a run / fitness meetup</option><option>Gym or coach collaboration</option><option>Brand partnership</option><option>General question</option></select>
+      <label for="message" style="font-weight:600">Message (optional)</label><textarea id="message" name="message" rows="3" placeholder="Anything we should know?" style="padding:13px;border:1px solid #34363c;border-radius:5px;background:#111215;color:#fff;font:inherit;resize:vertical"></textarea>
+      <button class="btn btn-fill" type="submit">Prepare registration email <svg class="ico"><use href="#i-arrow"/></svg></button><p id="formStatus" role="status" aria-live="polite" style="font-size:13px;color:#b4b0aa"></p>
+    </form>
+  </div>
+</section>
+
+<footer class="bleed" id="footer">
+  <div class="foot">
+    <a href="#home" class="logo" aria-label="FitMeet Patna"><span class="mark"><b>FIT</b><i>MEET</i></span><small>PATNA</small></a>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#events">Events</a></li>
+      <li><a href="#partner">Gyms &amp; Brands</a></li>
+      <li><a href="#gallery">Gallery</a></li>
+      <li><a href="#faqs">FAQs</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="social">
+      <a href="#" aria-label="Instagram"><svg class="ico"><use href="#i-ig"/></svg></a>
+      <a href="#" aria-label="YouTube"><svg class="ico"><use href="#i-yt"/></svg></a>
+      <a href="#" aria-label="X"><svg class="ico"><use href="#i-x"/></svg></a>
+    </div>
+  </div>
+  <p class="copy-line">© <span id="year">2026</span> FitMeet Patna. All rights reserved.</p>
+</footer>
+
+<script>
+(function () {
+  var btn = document.getElementById('menuBtn'), menu = document.getElementById('menu');
+  btn.addEventListener('click', function () {
+    var open = menu.classList.toggle('open');
+    btn.setAttribute('aria-expanded', open ? 'true' : 'false');
+  });
+  menu.addEventListener('click', function (e) {
+    if (e.target.tagName === 'A') { menu.classList.remove('open'); btn.setAttribute('aria-expanded', 'false'); }
+  });
+
+  // Countdown runs to the next Sunday 7:00 AM IST (UTC+5:30). Sunday sessions repeat weekly.
+  function nextSession() {
+    var now = Date.now();
+    var ist = new Date(now + 5.5 * 3600000);
+    var daysToSun = (7 - ist.getUTCDay()) % 7;
+    var t = Date.UTC(ist.getUTCFullYear(), ist.getUTCMonth(), ist.getUTCDate() + daysToSun, 7, 0, 0) - 5.5 * 3600000;
+    if (t <= now) t += 7 * 86400000;
+    return t;
+  }
+  var target = nextSession();
+  var el = { d: document.getElementById('cdD'), h: document.getElementById('cdH'), m: document.getElementById('cdM'), s: document.getElementById('cdS') };
+  function pad(n) { return (n < 10 ? '0' : '') + n; }
+  function tick() {
+    var diff = target - Date.now();
+    if (diff <= 0) { target = nextSession(); diff = target - Date.now(); }
+    var s = Math.floor(diff / 1000);
+    el.d.textContent = pad(Math.floor(s / 86400));
+    el.h.textContent = pad(Math.floor(s % 86400 / 3600));
+    el.m.textContent = pad(Math.floor(s % 3600 / 60));
+    el.s.textContent = pad(s % 60);
+  }
+  tick(); setInterval(tick, 1000);
+  var yearNode = document.getElementById('year');
+  if (yearNode) yearNode.textContent = new Date().getFullYear();
+  var contactForm = document.getElementById('contactForm');
+  if (contactForm) contactForm.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var name = document.getElementById('fullName').value.trim();
+    var email = document.getElementById('email').value.trim();
+    var interest = document.getElementById('interest').value;
+    var message = document.getElementById('message').value.trim();
+    var subject = encodeURIComponent('FitMeet Patna — ' + interest);
+    var body = encodeURIComponent('Hello FitMeet Patna,\n\nI would like to connect with you.\n\nName: ' + name + '\nEmail: ' + email + '\nInterest: ' + interest + '\nMessage: ' + (message || 'Not provided') + '\n\nSent from the FitMeet Patna website.');
+    document.getElementById('formStatus').textContent = 'Demo only: your details are ready. Add the organizer's email address to enable email registration.';
+    var summary = 'Registration preview\\nName: ' + name + '\\nEmail: ' + email + '\\nInterest: ' + interest + '\\nMessage: ' + (message || 'Not provided');
+    document.getElementById('formStatus').textContent = 'Demo preview created. No information has been sent or stored. Connect a backend or add the organizer email to receive registrations.';
+    var preview = document.getElementById('registrationPreview');
+    if (!preview) {
+      preview = document.createElement('pre');
+      preview.id = 'registrationPreview';
+      preview.style.cssText = 'white-space:pre-wrap;overflow-wrap:anywhere;padding:14px;border:1px solid #ff5a0a;border-radius:5px;color:#f5f2ee;background:#111215;font:inherit';
+      contactForm.appendChild(preview);
+    }
+    preview.textContent = summary;
+  });
+})();
+</script>
+
+</body></html>
