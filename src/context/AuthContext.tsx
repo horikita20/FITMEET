@@ -10,7 +10,6 @@ interface AuthContextType {
   signUp: (email: string, fullName: string, phone: string, password?: string) => Promise<void>;
   loginWithGoogle: () => Promise<void>;
   logout: () => void;
-  switchRoleDemo: (role: UserRole) => void;
   isBackendConnected: boolean;
 }
 
@@ -30,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem(LOCAL_USER_KEY);
           return null;
         }
-        return parsed;
+        return { ...parsed, role: 'customer' };
       }
     } catch {
       // fallback
@@ -61,16 +60,40 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         const firstName = meta.first_name || fullName.split(' ')[0] || 'Member';
         const lastName = meta.last_name || fullName.split(' ').slice(1).join(' ') || '';
 
-        setUser({
+        const nextUser: UserProfile = {
           id: session.user.id,
           email,
           firstName,
           lastName,
           fullName,
           phone: meta.phone || undefined,
-          role: meta.role || (email.includes('admin') ? 'super_admin' : 'customer'),
+          role: 'customer',
           createdAt: session.user.created_at,
-        });
+        };
+        setUser(nextUser);
+        window.setTimeout(() => {
+          void supabase
+            ?.from('profiles')
+            .select('role,is_active')
+            .eq('id', session.user.id)
+            .maybeSingle()
+            .then(({ data, error }) => {
+              if (error) {
+                console.error('Unable to load account permissions:', error.message);
+                return;
+              }
+              if (data?.is_active === false) {
+                void supabase?.auth.signOut();
+                setUser(null);
+                return;
+              }
+              if (data?.role === 'customer' || data?.role === 'organizer' || data?.role === 'super_admin') {
+                setUser((current) =>
+                  current?.id === session.user.id ? { ...current, role: data.role } : current
+                );
+              }
+            });
+        }, 0);
       }
     });
 
@@ -111,11 +134,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Explicit demo fallback when Supabase is not configured
-    let assignedRole: UserRole = forcedRole || 'customer';
-    if (!forcedRole) {
-      if (email.toLowerCase().includes('admin')) assignedRole = 'super_admin';
-      else if (email.toLowerCase().includes('coach') || email.toLowerCase().includes('gym')) assignedRole = 'organizer';
-    }
+    const assignedRole: UserRole = 'customer';
 
     const firstName = email.split('@')[0];
     const loggedInUser: UserProfile = {
@@ -169,16 +188,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(null);
   };
 
-  const switchRoleDemo = (role: UserRole) => {
-    if (!user) return;
-    setUser({
-      ...user,
-      role,
-      organizationId: role === 'organizer' ? 'org-01' : undefined,
-      organizationName: role === 'organizer' ? 'FitMeet Patna Crew' : undefined,
-    });
-  };
-
   return (
     <AuthContext.Provider
       value={{
@@ -189,7 +198,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         signUp,
         loginWithGoogle,
         logout,
-        switchRoleDemo,
         isBackendConnected: isSupabaseConfigured,
       }}
     >

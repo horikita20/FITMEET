@@ -103,22 +103,10 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenLega
             >
               Refund Policy
             </button>
-            <span>·</span>
-            <a
-              href="/assets/aistudio/FitMeet_Policies_a6e4b93c.pdf"
-              target="_blank"
-              rel="noopener noreferrer"
-              download="FitMeet_Policies.pdf"
-              className="inline-flex items-center gap-1 text-[#FC5300] hover:text-[#ff7a2e] font-semibold transition-colors"
-              title="Download Official FitMeet Policies (Oct 28, 2026)"
-            >
-              <FileDown className="h-3.5 w-3.5" />
-              <span>Official Policies (PDF)</span>
-            </a>
           </div>
 
           <div>
-            © {new Date().getFullYear()} {settings.brandName} Patna. Target Domain: {settings.customDomain}
+            © {new Date().getFullYear()} {settings.brandName} Patna.
           </div>
         </div>
       </div>

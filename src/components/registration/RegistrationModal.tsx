@@ -166,6 +166,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           eventId: event.id,
           ticketCount,
           userId: user?.id,
+          userName: fullName.trim(),
           userEmail: email.trim().toLowerCase(),
           userPhone: phone.trim(),
         });
@@ -372,10 +373,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <MapPin className="h-4 w-4 text-[#FC5300] shrink-0 mt-0.5" />
                   <div>
                     <span className="text-[10px] text-slate-500 dark:text-[#888] uppercase block font-semibold">Venue</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">{event.venue}, {event.city}</span>
-                    {event.locationDetails && (
-                      <span className="text-[11px] text-slate-500 dark:text-[#888] block">({event.locationDetails})</span>
-                    )}
+                    <span className="font-semibold text-slate-900 dark:text-white">To Be Announced</span>
                   </div>
                 </div>
               </div>
@@ -385,11 +383,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
             <form onSubmit={handleSubmit} className="bg-white dark:bg-[#14151a] border border-slate-200 dark:border-[#22242c] rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
               <div className="border-b border-slate-100 dark:border-[#1e2027] pb-3">
                 <h3 className="font-head font-bold text-lg uppercase text-slate-900 dark:text-white">
-                  Participant Registration
+                  Get Pass
                 </h3>
-                <p className="text-xs text-slate-500 dark:text-[#b4b0aa] mt-0.5">
-                  Enter attendee details to generate your digital entry pass.
-                </p>
               </div>
 
               {/* Full Name & Email */}
@@ -401,7 +396,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <input
                     type="text"
                     required
-                    placeholder="Aditya Sharma"
                     value={fullName}
                     onChange={(e) => setFullName(e.target.value)}
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
@@ -422,7 +416,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <input
                     type="email"
                     required
-                    placeholder="aditya@example.com"
                     value={email}
                     onChange={(e) => setEmail(e.target.value)}
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
@@ -446,7 +439,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   <input
                     type="tel"
                     required
-                    placeholder="+91 98350 12345"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
@@ -466,7 +458,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                   </label>
                   <input
                     type="text"
-                    placeholder="@aditya_runs"
                     value={instagram}
                     onChange={(e) => setInstagram(e.target.value)}
                     className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border border-slate-300 dark:border-[#2a2c36] focus:border-[#FC5300] rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors"
@@ -504,7 +495,6 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 {gender === 'Self-describe' && (
                   <input
                     type="text"
-                    placeholder="Please specify..."
                     value={customGender}
                     onChange={(e) => setCustomGender(e.target.value)}
                     className="mt-2 w-full px-3 py-2 text-xs bg-slate-50 dark:bg-[#0c0d10] border border-[#FC5300] rounded-lg text-slate-900 dark:text-white focus:outline-none"
@@ -540,7 +530,7 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                     </span>
                   ) : (
                     <>
-                      <span>{isFree ? 'Join the Meet — Get Pass' : 'Proceed to Payment'}</span>
+                      <span>{isFree ? 'Get Pass' : 'Proceed to Payment'}</span>
                       <ArrowRight className="h-4 w-4" />
                     </>
                   )}

@@ -1,8 +1,7 @@
 import React, { useState } from 'react';
-import { Menu, X, ArrowRight, User, Shield, Briefcase, Ticket, LogOut, Sun, Moon } from 'lucide-react';
+import { Menu, X, ArrowRight, Briefcase, Ticket, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
-import { UserRole } from '../../types';
 
 interface HeaderProps {
   currentView: string;
@@ -19,7 +18,7 @@ export const Header: React.FC<HeaderProps> = ({
   onOpenAuth,
   onRegisterClick,
 }) => {
-  const { user, isAuthenticated, logout, switchRoleDemo } = useAuth();
+  const { user, isAuthenticated, logout } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userDropdownOpen, setUserDropdownOpen] = useState(false);
@@ -27,7 +26,7 @@ export const Header: React.FC<HeaderProps> = ({
   const navItems = [
     { id: 'home', label: 'Home' },
     { id: 'about', label: 'About' },
-    { id: 'runs', label: 'Runs' },
+    { id: 'runs', label: 'Meets' },
     { id: 'gallery', label: 'Gallery' },
     { id: 'collaborate', label: 'Collaborate With Us' },
     { id: 'faqs', label: 'FAQ' },
@@ -142,38 +141,6 @@ export const Header: React.FC<HeaderProps> = ({
                     </button>
                   )}
 
-                  {user.role === 'super_admin' && (
-                    <button
-                      onClick={() => handleNav('admin-dashboard')}
-                      className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-[#16181d] text-left transition-colors cursor-pointer text-amber-500 dark:text-amber-400"
-                    >
-                      <Shield className="h-4 w-4" />
-                      <span>Super-Admin Console</span>
-                    </button>
-                  )}
-
-                  {/* Dev Role Switcher for seamless testing */}
-                  <div className="px-4 py-2 border-t border-slate-200 dark:border-[#25272c] bg-slate-50 dark:bg-[#0a0a0c]/50">
-                    <span className="text-[10px] text-slate-500 dark:text-neutral-400 block mb-1">
-                      Dev Role Testing:
-                    </span>
-                    <div className="flex gap-1">
-                      {(['customer', 'organizer', 'super_admin'] as UserRole[]).map((r) => (
-                        <button
-                          key={r}
-                          onClick={() => switchRoleDemo(r)}
-                          className={`px-1.5 py-0.5 rounded text-[9px] uppercase font-mono cursor-pointer ${
-                            user.role === r
-                              ? 'bg-[#FC5300] text-white font-bold'
-                              : 'bg-slate-200 dark:bg-[#25272c] text-slate-600 dark:text-neutral-400 hover:text-black dark:hover:text-white'
-                          }`}
-                        >
-                          {r.replace('_', '')}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-
                   <button
                     onClick={() => {
                       setUserDropdownOpen(false);
@@ -200,7 +167,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Primary Cyan Pill Button: Register (Matches Reference Image 5, 7, 8) */}
               <button
                 onClick={onRegisterClick}
-                className="inline-flex items-center justify-center px-6 sm:px-7 py-2 sm:py-2.5 text-sm font-bold text-white bg-[#00adef] hover:bg-[#0098d4] rounded-full transition-all transform active:scale-95 cursor-pointer shadow-md shadow-[#00adef]/25 shrink-0"
+                className="inline-flex items-center justify-center px-6 sm:px-7 py-2 sm:py-2.5 text-sm font-bold text-white bg-[#FC5300] hover:bg-[#ff7a2e] rounded-full transition-all transform active:scale-95 cursor-pointer shadow-md shadow-[#FC5300]/25 shrink-0"
               >
                 <span>Register</span>
               </button>
@@ -287,15 +254,6 @@ export const Header: React.FC<HeaderProps> = ({
                     <Briefcase className="h-4 w-4" />
                   </button>
                 )}
-                {user.role === 'super_admin' && (
-                  <button
-                    onClick={() => handleNav('admin-dashboard')}
-                    className="py-2 text-left text-sm font-semibold text-amber-500 dark:text-amber-400 flex items-center justify-between border-b border-slate-100 dark:border-[#1b1c20]"
-                  >
-                    <span>Super Admin Console</span>
-                    <Shield className="h-4 w-4" />
-                  </button>
-                )}
               </>
             )}
 
@@ -306,7 +264,7 @@ export const Header: React.FC<HeaderProps> = ({
                     setMobileMenuOpen(false);
                     onRegisterClick();
                   }}
-                  className="w-full py-2.5 px-4 text-center text-xs font-bold uppercase tracking-wider text-white bg-[#00adef] hover:bg-[#0098d4] rounded-full shadow-md cursor-pointer flex items-center justify-center gap-2"
+                  className="w-full py-2.5 px-4 text-center text-xs font-bold uppercase tracking-wider text-white bg-[#FC5300] hover:bg-[#ff7a2e] rounded-full shadow-md cursor-pointer flex items-center justify-center gap-2"
                 >
                   <span>Register</span>
                   <ArrowRight className="h-3.5 w-3.5" />

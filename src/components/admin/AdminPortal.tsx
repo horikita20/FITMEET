@@ -1,0 +1,723 @@
+import React, { FormEvent, useCallback, useEffect, useState } from 'react';
+import {
+  Activity,
+  CalendarDays,
+  CreditCard,
+  Download,
+  LogOut,
+  Plus,
+  RefreshCw,
+  ShieldCheck,
+  Ticket,
+  Users,
+  X,
+} from 'lucide-react';
+import { FitnessEvent } from '../../types';
+import { isSupabaseConfigured, supabase } from '../../lib/supabase';
+
+type AdminTab = 'overview' | 'events' | 'users' | 'registrations' | 'payments' | 'enquiries';
+type PortalScreen = 'checking' | 'login' | 'dashboard';
+
+interface Overview {
+  totalUsers: number;
+  totalEvents: number;
+  totalRegistrations: number;
+  totalRevenuePaise: number;
+}
+
+interface AdminUser {
+  id: string;
+  email: string;
+  first_name: string;
+  last_name: string;
+  phone: string | null;
+  role: string;
+  is_active: boolean;
+  created_at: string;
+}
+
+interface AdminRegistration {
+  id: string;
+  reference_id: string;
+  event_id: string;
+  full_name: string;
+  email: string;
+  phone: string;
+  ticket_count: number;
+  total_amount_in_paise: number;
+  payment_status: string;
+  razorpay_order_id: string | null;
+  razorpay_payment_id: string | null;
+  created_at: string;
+  event: { title: string } | null;
+}
+
+interface AdminPayment {
+  id: string;
+  registration_id: string;
+  razorpay_order_id: string;
+  razorpay_payment_id: string | null;
+  amount_in_paise: number;
+  currency: string;
+  status: string;
+  error_code: string | null;
+  error_description: string | null;
+  created_at: string;
+  registration: { reference_id: string; full_name: string; email: string; event_id: string } | null;
+}
+
+interface AdminEnquiry {
+  id: string;
+  name: string;
+  organization_type: string;
+  phone: string;
+  city: string;
+  support_options: string[];
+  message: string | null;
+  status: 'new' | 'contacted' | 'archived';
+  created_at: string;
+}
+
+interface AdminOrganization {
+  id: string;
+  name: string;
+}
+
+interface EventDraft {
+  title: string;
+  description: string;
+  category: string;
+  coverImage: string;
+  date: string;
+  startTime: string;
+  endTime: string;
+  venue: string;
+  city: string;
+  locationDetails: string;
+  priceInPaise: string;
+  registrationCapacity: string;
+  registrationDeadline: string;
+  rules: string;
+  cancellationPolicy: string;
+  primaryOrganizerId: string;
+  status: 'draft' | 'published' | 'cancelled' | 'completed';
+  featured: boolean;
+}
+
+const emptyDraft: EventDraft = {
+  title: '',
+  description: '',
+  category: 'running',
+  coverImage: '/assets/images/hero_runners_dawn.jpg',
+  date: '',
+  startTime: '06:00',
+  endTime: '08:00',
+  venue: '',
+  city: 'Patna',
+  locationDetails: '',
+  priceInPaise: '0',
+  registrationCapacity: '50',
+  registrationDeadline: '',
+  rules: '',
+  cancellationPolicy: '',
+  primaryOrganizerId: '',
+  status: 'draft',
+  featured: false,
+};
+
+async function adminRequest<T>(path: string, init: RequestInit = {}): Promise<T> {
+  if (!supabase) throw new Error('Supabase authentication is not configured.');
+  const { data, error: sessionError } = await supabase.auth.getSession();
+  if (sessionError) throw sessionError;
+  const accessToken = data.session?.access_token;
+  if (!accessToken) throw new Error('Your session expired. Please sign in again.');
+
+  const response = await fetch(`/api/admin/portal${path}`, {
+    ...init,
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      ...(init.body ? { 'Content-Type': 'application/json' } : {}),
+      ...init.headers,
+    },
+  });
+  const result = await response.json().catch(() => ({}));
+  if (!response.ok) throw new Error(result.error || 'The Admin Portal request failed.');
+  return result as T;
+}
+
+function downloadCsv(filename: string, records: object[]) {
+  if (records.length === 0) throw new Error('There are no records to export.');
+  const rows = records.map((record) => new Map(Object.entries(record)));
+  const headers = Array.from(new Set(rows.flatMap((row) => Array.from(row.keys()))));
+  const escape = (value: unknown) => `"${String(value ?? '').replace(/"/g, '""')}"`;
+  const csv = [headers.map(escape).join(','), ...rows.map((row) => headers.map((header) => escape(row.get(header))).join(','))].join('\r\n');
+  const link = document.createElement('a');
+  link.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' }));
+  link.download = filename;
+  link.click();
+  URL.revokeObjectURL(link.href);
+}
+
+const formatMoney = (paise: number) =>
+  new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(paise / 100);
+
+const buttonClass =
+  'inline-flex items-center justify-center gap-2 rounded-lg border border-[#303139] bg-[#191a1f] px-4 py-2.5 text-sm font-semibold text-[#f5f2ee] transition-colors hover:border-[#fc5300] hover:text-white disabled:cursor-not-allowed disabled:opacity-50';
+
+const adminPath = (path: '/admin' | '/admin/login') => {
+  const prefix = window.location.pathname.startsWith('/FITMEET/') ? '/FITMEET' : '';
+  return `${prefix}${path}`;
+};
+
+export const AdminPortal: React.FC = () => {
+  const [screen, setScreen] = useState<PortalScreen>('checking');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [activeTab, setActiveTab] = useState<AdminTab>('overview');
+  const [overview, setOverview] = useState<Overview | null>(null);
+  const [events, setEvents] = useState<FitnessEvent[]>([]);
+  const [users, setUsers] = useState<AdminUser[]>([]);
+  const [registrations, setRegistrations] = useState<AdminRegistration[]>([]);
+  const [payments, setPayments] = useState<AdminPayment[]>([]);
+  const [enquiries, setEnquiries] = useState<AdminEnquiry[]>([]);
+  const [organizations, setOrganizations] = useState<AdminOrganization[]>([]);
+  const [eventDraft, setEventDraft] = useState<EventDraft>(emptyDraft);
+  const [editingEventId, setEditingEventId] = useState<string | null>(null);
+  const [eventDialogOpen, setEventDialogOpen] = useState(false);
+  const [busy, setBusy] = useState(false);
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  const refreshOverview = useCallback(async () => {
+    const data = await adminRequest<Overview>('/overview');
+    setOverview(data);
+  }, []);
+
+  const handleRefresh = async () => {
+    setBusy(true);
+    setErrorMessage(null);
+    try {
+      await refreshOverview();
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to refresh dashboard.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  useEffect(() => {
+    if (!isSupabaseConfigured || !supabase) {
+      setErrorMessage('Admin login requires the public Supabase URL and anon key in the site configuration.');
+      setScreen('login');
+      return;
+    }
+
+    let active = true;
+    void (async () => {
+      const { data, error } = await supabase.auth.getSession();
+      if (!active) return;
+      if (error) {
+        setErrorMessage(error.message);
+        setScreen('login');
+        return;
+      }
+      if (!data.session) {
+        if (window.location.pathname.replace(/\/+$/, '').endsWith('/admin')) {
+          window.history.replaceState(null, '', adminPath('/admin/login'));
+        }
+        setScreen('login');
+        return;
+      }
+      try {
+        await refreshOverview();
+        if (active) {
+          if (window.location.pathname.replace(/\/+$/, '').endsWith('/admin/login')) {
+            window.history.replaceState(null, '', adminPath('/admin'));
+          }
+          setScreen('dashboard');
+        }
+      } catch (requestError) {
+        if (active) {
+          setErrorMessage(requestError instanceof Error ? requestError.message : 'Admin access was denied.');
+          setScreen('login');
+        }
+      }
+    })();
+
+    return () => {
+      active = false;
+    };
+  }, [refreshOverview]);
+
+  useEffect(() => {
+    if (screen !== 'dashboard') return;
+    let active = true;
+    void (async () => {
+      setBusy(true);
+      setErrorMessage(null);
+      try {
+        if (activeTab === 'overview') await refreshOverview();
+        if (activeTab === 'events') {
+          const [eventRows, orgRows] = await Promise.all([
+            adminRequest<FitnessEvent[]>('/events'),
+            adminRequest<AdminOrganization[]>('/organizations'),
+          ]);
+          if (active) {
+            setEvents(eventRows);
+            setOrganizations(orgRows);
+          }
+        }
+        if (activeTab === 'users') setUsers(await adminRequest<AdminUser[]>('/users'));
+        if (activeTab === 'registrations') setRegistrations(await adminRequest<AdminRegistration[]>('/registrations'));
+        if (activeTab === 'payments') setPayments(await adminRequest<AdminPayment[]>('/payments'));
+        if (activeTab === 'enquiries') setEnquiries(await adminRequest<AdminEnquiry[]>('/enquiries'));
+      } catch (requestError) {
+        if (active) setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to load records.');
+      } finally {
+        if (active) setBusy(false);
+      }
+    })();
+    return () => {
+      active = false;
+    };
+  }, [activeTab, refreshOverview, screen]);
+
+  const handleLogin = async (event: FormEvent) => {
+    event.preventDefault();
+    if (!supabase || busy) return;
+    setBusy(true);
+    setErrorMessage(null);
+    try {
+      const { error } = await supabase.auth.signInWithPassword({ email: email.trim(), password });
+      if (error) throw error;
+      await refreshOverview();
+      window.history.replaceState(null, '', adminPath('/admin'));
+      setPassword('');
+      setScreen('dashboard');
+    } catch (loginError) {
+      const { error: signOutError } = await supabase.auth.signOut();
+      if (signOutError) console.error('Unable to clear rejected admin session:', signOutError.message);
+      setErrorMessage(loginError instanceof Error ? loginError.message : 'Unable to sign in to the Admin Portal.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const showSuccess = (message: string) => {
+    setSuccessMessage(message);
+    window.setTimeout(() => setSuccessMessage(null), 3500);
+  };
+
+  const openNewEvent = () => {
+    setEventDraft({ ...emptyDraft, primaryOrganizerId: organizations[0]?.id || '' });
+    setEditingEventId(null);
+    setEventDialogOpen(true);
+  };
+
+  const openEditEvent = (event: FitnessEvent) => {
+    setEditingEventId(event.id);
+    setEventDraft({
+      ...emptyDraft,
+      title: event.title,
+      description: event.description,
+      category: event.category,
+      coverImage: event.coverImage,
+      date: event.date,
+      startTime: event.startTime.slice(0, 5),
+      endTime: event.endTime.slice(0, 5),
+      venue: event.venue,
+      city: event.city,
+      locationDetails: event.locationDetails || '',
+      priceInPaise: String(event.priceInPaise),
+      registrationCapacity: String(event.registrationCapacity),
+      registrationDeadline: event.registrationDeadline?.slice(0, 16) || '',
+      rules: event.rules.join('\n'),
+      cancellationPolicy: event.cancellationPolicy,
+      primaryOrganizerId: event.primaryOrganizerId,
+      status: event.status as EventDraft['status'],
+      featured: Boolean(event.featured),
+    });
+    setEventDialogOpen(true);
+  };
+
+  const saveEvent = async (event: FormEvent) => {
+    event.preventDefault();
+    setBusy(true);
+    setErrorMessage(null);
+    try {
+      const payload = {
+        ...eventDraft,
+        priceInPaise: Number(eventDraft.priceInPaise),
+        registrationCapacity: Number(eventDraft.registrationCapacity),
+        rules: eventDraft.rules.split('\n').map((rule) => rule.trim()).filter(Boolean),
+        registrationDeadline: eventDraft.registrationDeadline
+          ? new Date(eventDraft.registrationDeadline).toISOString()
+          : null,
+      };
+      await adminRequest(
+        editingEventId ? `/events/${editingEventId}` : '/events',
+        { method: editingEventId ? 'PUT' : 'POST', body: JSON.stringify(payload) }
+      );
+      setEventDialogOpen(false);
+      setActiveTab('overview');
+      await refreshOverview();
+      setActiveTab('events');
+      showSuccess(editingEventId ? 'Event updated.' : 'Event created.');
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to save event.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateEventStatus = async (event: FitnessEvent) => {
+    const nextStatus = event.status === 'published' ? 'draft' : 'published';
+    setBusy(true);
+    try {
+      await adminRequest(`/events/${event.id}`, {
+        method: 'PUT',
+        body: JSON.stringify({
+          ...event,
+          status: nextStatus,
+          registrationCapacity: event.registrationCapacity,
+          priceInPaise: event.priceInPaise,
+        }),
+      });
+      setEvents((current) => current.map((item) => item.id === event.id ? { ...item, status: nextStatus } : item));
+      showSuccess(nextStatus === 'published' ? 'Event published.' : 'Event unpublished.');
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to update event status.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const deleteEvent = async (event: FitnessEvent) => {
+    if (!window.confirm(`Delete "${event.title}"? Events with registrations cannot be deleted.`)) return;
+    setBusy(true);
+    try {
+      await adminRequest(`/events/${event.id}`, { method: 'DELETE' });
+      setEvents((current) => current.filter((item) => item.id !== event.id));
+      await refreshOverview();
+      showSuccess('Event deleted.');
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to delete event.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateUserStatus = async (user: AdminUser) => {
+    setBusy(true);
+    try {
+      await adminRequest(`/users/${user.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ isActive: !user.is_active }),
+      });
+      setUsers((current) => current.map((item) =>
+        item.id === user.id ? { ...item, is_active: !item.is_active } : item
+      ));
+      showSuccess(user.is_active ? 'Account deactivated.' : 'Account activated.');
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to update user.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const updateEnquiryStatus = async (enquiry: AdminEnquiry, status: AdminEnquiry['status']) => {
+    setBusy(true);
+    try {
+      await adminRequest(`/enquiries/${enquiry.id}`, {
+        method: 'PATCH',
+        body: JSON.stringify({ status }),
+      });
+      setEnquiries((current) => current.map((item) => item.id === enquiry.id ? { ...item, status } : item));
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to update enquiry.');
+    } finally {
+      setBusy(false);
+    }
+  };
+
+  const exportRecords = async (kind: 'registrations' | 'payments') => {
+    try {
+      if (kind === 'registrations') {
+        const rows = await adminRequest<AdminRegistration[]>('/registrations');
+        downloadCsv('fitmeet-registrations.csv', rows.map((row) => ({
+          id: row.id,
+          reference_id: row.reference_id,
+          event_id: row.event_id,
+          event_title: row.event?.title || '',
+          full_name: row.full_name,
+          email: row.email,
+          phone: row.phone,
+          ticket_count: row.ticket_count,
+          total_amount_in_paise: row.total_amount_in_paise,
+          payment_status: row.payment_status,
+          razorpay_order_id: row.razorpay_order_id || '',
+          razorpay_payment_id: row.razorpay_payment_id || '',
+          created_at: row.created_at,
+        })));
+      } else {
+        const rows = await adminRequest<AdminPayment[]>('/payments');
+        downloadCsv('fitmeet-payments.csv', rows.map((row) => ({
+          id: row.id,
+          registration_id: row.registration_id,
+          registration_reference: row.registration?.reference_id || '',
+          participant_name: row.registration?.full_name || '',
+          participant_email: row.registration?.email || '',
+          event_id: row.registration?.event_id || '',
+          razorpay_order_id: row.razorpay_order_id,
+          razorpay_payment_id: row.razorpay_payment_id || '',
+          amount_in_paise: row.amount_in_paise,
+          currency: row.currency,
+          status: row.status,
+          error_code: row.error_code || '',
+          error_description: row.error_description || '',
+          created_at: row.created_at,
+        })));
+      }
+    } catch (requestError) {
+      setErrorMessage(requestError instanceof Error ? requestError.message : 'Unable to export records.');
+    }
+  };
+
+  const logout = async () => {
+    await supabase?.auth.signOut();
+    window.history.replaceState(null, '', adminPath('/admin/login'));
+    setScreen('login');
+    setOverview(null);
+    setErrorMessage(null);
+  };
+
+  const tabs: Array<{ id: AdminTab; title: string; icon: React.ReactNode }> = [
+    { id: 'overview', title: 'Overview', icon: <Activity size={17} /> },
+    { id: 'events', title: 'Events', icon: <CalendarDays size={17} /> },
+    { id: 'users', title: 'Users', icon: <Users size={17} /> },
+    { id: 'registrations', title: 'Registrations', icon: <Ticket size={17} /> },
+    { id: 'payments', title: 'Payments', icon: <CreditCard size={17} /> },
+    { id: 'enquiries', title: 'Collaborations', icon: <ShieldCheck size={17} /> },
+  ];
+
+  if (screen === 'checking') {
+    return <div className="grid min-h-screen place-items-center bg-[#0a0a0c] text-[#c9c9cf]">Checking admin access…</div>;
+  }
+
+  if (screen === 'login') {
+    return (
+      <main className="grid min-h-screen place-items-center bg-[radial-gradient(circle_at_50%_10%,rgba(252,83,0,.14),transparent_35%),#0a0a0c] px-4 py-10 text-[#f5f2ee]">
+        <form onSubmit={handleLogin} className="w-full max-w-md rounded-2xl border border-[#292a30] bg-[#111215] p-7 shadow-2xl sm:p-9">
+          <div className="mb-7 flex items-center gap-3">
+            <div className="grid h-11 w-11 place-items-center rounded-xl bg-[#fc5300]/15 text-[#fc5300]"><ShieldCheck /></div>
+            <div>
+              <p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">FITMEET OWNER ACCESS</p>
+              <h1 className="font-head text-3xl font-black uppercase text-white">Admin Login</h1>
+            </div>
+          </div>
+          <p className="mb-6 text-sm leading-6 text-[#aaa8a5]">
+            Sign in with the authorized FitMeet administrator account. Admin privileges are checked by the server.
+          </p>
+          {errorMessage && <p role="alert" className="mb-4 rounded-lg border border-red-900 bg-red-950/40 p-3 text-sm text-red-200">{errorMessage}</p>}
+          <label className="mb-4 block text-sm font-semibold text-[#d9d7d4]">
+            Email
+            <input
+              type="email"
+              autoComplete="username"
+              required
+              value={email}
+              onChange={(event) => setEmail(event.target.value)}
+              className="mt-2 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3.5 py-3 text-white outline-none focus:border-[#fc5300]"
+            />
+          </label>
+          <label className="mb-6 block text-sm font-semibold text-[#d9d7d4]">
+            Password
+            <input
+              type="password"
+              autoComplete="current-password"
+              required
+              value={password}
+              onChange={(event) => setPassword(event.target.value)}
+              className="mt-2 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3.5 py-3 text-white outline-none focus:border-[#fc5300]"
+            />
+          </label>
+          <button type="submit" disabled={busy || !isSupabaseConfigured} className="w-full rounded-lg bg-[#fc5300] px-4 py-3 font-bold text-white transition-colors hover:bg-[#ff7130] disabled:opacity-50">
+            {busy ? 'Verifying…' : 'Sign in securely'}
+          </button>
+          <a href={window.location.pathname.startsWith('/FITMEET/') ? '/FITMEET/' : '/'} className="mt-5 block text-center text-sm text-[#aaa8a5] hover:text-white">Return to FitMeet</a>
+        </form>
+      </main>
+    );
+  }
+
+  return (
+    <div className="min-h-screen bg-[#0a0a0c] text-[#f5f2ee]">
+      <header className="sticky top-0 z-30 border-b border-[#25272c] bg-[#0d0e10]/95 backdrop-blur">
+        <div className="mx-auto flex max-w-[1500px] items-center justify-between gap-4 px-4 py-4 sm:px-7">
+          <div className="flex items-center gap-3">
+            <div className="grid h-10 w-10 place-items-center rounded-xl bg-[#fc5300]/15 text-[#fc5300]"><ShieldCheck /></div>
+            <div><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">FITMEET</p><h1 className="font-head text-xl font-black uppercase text-white sm:text-2xl">Admin Portal</h1></div>
+          </div>
+          <div className="flex gap-2">
+            <button className={buttonClass} onClick={() => void handleRefresh()} aria-label="Refresh dashboard" disabled={busy}><RefreshCw size={17} /></button>
+            <button className={buttonClass} onClick={() => void logout()}><LogOut size={17} /><span className="hidden sm:inline">Sign out</span></button>
+          </div>
+        </div>
+      </header>
+
+      <main className="mx-auto max-w-[1500px] px-4 py-6 sm:px-7 sm:py-9">
+        <nav className="mb-7 flex gap-2 overflow-x-auto pb-2" aria-label="Admin sections">
+          {tabs.map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() => { setErrorMessage(null); setActiveTab(tab.id); }}
+              className={`inline-flex shrink-0 items-center gap-2 rounded-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
+                activeTab === tab.id ? 'bg-[#fc5300] text-white' : 'border border-[#292a30] bg-[#111215] text-[#b4b0aa] hover:text-white'
+              }`}
+            >
+              {tab.icon}{tab.title}
+            </button>
+          ))}
+        </nav>
+
+        {errorMessage && <div role="alert" className="mb-5 flex items-start justify-between gap-4 rounded-lg border border-red-900 bg-red-950/40 p-4 text-sm text-red-200"><span>{errorMessage}</span><button onClick={() => setErrorMessage(null)} aria-label="Dismiss error"><X size={17} /></button></div>}
+        {successMessage && <div role="status" className="mb-5 rounded-lg border border-emerald-900 bg-emerald-950/40 p-4 text-sm text-emerald-200">{successMessage}</div>}
+
+        {activeTab === 'overview' && (
+          <>
+            <div className="mb-6">
+              <p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Platform overview</p>
+              <h2 className="mt-1 font-head text-3xl font-black uppercase text-white sm:text-4xl">Your community at a glance</h2>
+            </div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-4">
+              {[
+                ['Total users', overview?.totalUsers, <Users />],
+                ['Events', overview?.totalEvents, <CalendarDays />],
+                ['Registrations', overview?.totalRegistrations, <Ticket />],
+                ['Captured revenue', formatMoney(overview?.totalRevenuePaise || 0), <CreditCard />],
+              ].map(([label, value, icon]) => (
+                <article key={String(label)} className="rounded-2xl border border-[#292a30] bg-[#111215] p-5 sm:p-6">
+                  <div className="flex items-center justify-between text-sm font-semibold text-[#aaa8a5]">
+                    {label}<span className="text-[#fc5300]">{icon}</span>
+                  </div>
+                  <p className="mt-4 font-head text-4xl font-black text-white">{value ?? (busy ? '…' : 0)}</p>
+                </article>
+              ))}
+            </div>
+            <p className="mt-6 text-sm text-[#85838a]">Counts and revenue are queried from Supabase records. Revenue includes only captured payment transactions.</p>
+          </>
+        )}
+
+        {activeTab === 'events' && (
+          <section>
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3">
+              <div><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Event operations</p><h2 className="mt-1 font-head text-3xl font-black uppercase text-white">Manage events</h2></div>
+              <button onClick={openNewEvent} disabled={!organizations.length} className={`${buttonClass} border-[#fc5300] bg-[#fc5300] text-white hover:bg-[#ff7130]`}><Plus size={17} />Create event</button>
+            </div>
+            {!organizations.length && !busy && <p className="mb-4 rounded-lg border border-amber-900 bg-amber-950/30 p-3 text-sm text-amber-200">An approved organization record is required before creating events.</p>}
+            <div className="overflow-x-auto rounded-xl border border-[#292a30] bg-[#111215]">
+              <table className="w-full min-w-[840px] text-left text-sm">
+                <thead className="border-b border-[#292a30] text-xs uppercase text-[#aaa8a5]"><tr><th className="p-4">Event</th><th className="p-4">Date / City</th><th className="p-4">Status</th><th className="p-4">Capacity</th><th className="p-4">Actions</th></tr></thead>
+                <tbody className="divide-y divide-[#24252b]">{events.map((event) => (
+                  <tr key={event.id}>
+                    <td className="p-4"><div className="font-semibold text-white">{event.title}</div><div className="mt-1 text-xs text-[#8e8d93]">{event.venue}</div></td>
+                    <td className="p-4 text-[#c9c9cf]">{event.date}<div className="text-xs text-[#8e8d93]">{event.city}</div></td>
+                    <td className="p-4"><span className="rounded-full bg-[#fc5300]/15 px-2.5 py-1 text-xs font-semibold capitalize text-[#ff844e]">{event.status}</span></td>
+                    <td className="p-4 text-[#c9c9cf]">{event.slotsRemaining} / {event.registrationCapacity}</td>
+                    <td className="p-4"><div className="flex gap-2">
+                      <button className={buttonClass} onClick={() => openEditEvent(event)}>Edit</button>
+                      <button className={buttonClass} onClick={() => void updateEventStatus(event)}>{event.status === 'published' ? 'Unpublish' : 'Publish'}</button>
+                      <button className="rounded-lg border border-red-900 px-3 py-2 text-sm text-red-300 hover:bg-red-950" onClick={() => void deleteEvent(event)}>Delete</button>
+                    </div></td>
+                  </tr>
+                ))}</tbody>
+              </table>
+              {!events.length && !busy && <p className="p-8 text-center text-sm text-[#aaa8a5]">No event records found.</p>}
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'users' && (
+          <section>
+            <div className="mb-5"><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Account administration</p><h2 className="mt-1 font-head text-3xl font-black uppercase text-white">Registered users</h2></div>
+            <div className="overflow-x-auto rounded-xl border border-[#292a30] bg-[#111215]">
+              <table className="w-full min-w-[760px] text-left text-sm"><thead className="border-b border-[#292a30] text-xs uppercase text-[#aaa8a5]"><tr><th className="p-4">User</th><th className="p-4">Phone</th><th className="p-4">Role</th><th className="p-4">Joined</th><th className="p-4">Account</th><th className="p-4">Action</th></tr></thead>
+                <tbody className="divide-y divide-[#24252b]">{users.map((user) => <tr key={user.id}>
+                  <td className="p-4"><div className="font-semibold text-white">{user.first_name} {user.last_name}</div><div className="text-xs text-[#8e8d93]">{user.email}</div></td>
+                  <td className="p-4 text-[#c9c9cf]">{user.phone || '—'}</td><td className="p-4 capitalize text-[#c9c9cf]">{user.role.replace('_', ' ')}</td>
+                  <td className="p-4 text-[#c9c9cf]">{new Date(user.created_at).toLocaleDateString()}</td>
+                  <td className="p-4"><span className={user.is_active ? 'text-emerald-300' : 'text-red-300'}>{user.is_active ? 'Active' : 'Inactive'}</span></td>
+                  <td className="p-4"><button className={buttonClass} disabled={busy || user.role === 'super_admin'} onClick={() => void updateUserStatus(user)}>{user.is_active ? 'Deactivate' : 'Activate'}</button></td>
+                </tr>)}</tbody>
+              </table>
+              {!users.length && !busy && <p className="p-8 text-center text-sm text-[#aaa8a5]">No registered users found.</p>}
+            </div>
+          </section>
+        )}
+
+        {activeTab === 'registrations' && (
+          <section>
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Attendance records</p><h2 className="mt-1 font-head text-3xl font-black uppercase text-white">Registrations</h2></div><button className={buttonClass} onClick={() => void exportRecords('registrations')}><Download size={17} />Export CSV</button></div>
+            <div className="overflow-x-auto rounded-xl border border-[#292a30] bg-[#111215]"><table className="w-full min-w-[920px] text-left text-sm"><thead className="border-b border-[#292a30] text-xs uppercase text-[#aaa8a5]"><tr><th className="p-4">Participant</th><th className="p-4">Event</th><th className="p-4">Reference</th><th className="p-4">Tickets / Amount</th><th className="p-4">Payment</th><th className="p-4">Contact</th></tr></thead>
+              <tbody className="divide-y divide-[#24252b]">{registrations.map((row) => <tr key={row.id}><td className="p-4"><div className="font-semibold text-white">{row.full_name}</div><div className="text-xs text-[#8e8d93]">{row.email}</div></td><td className="p-4 text-[#c9c9cf]">{row.event?.title || row.event_id}</td><td className="p-4 font-mono text-[#c9c9cf]">{row.reference_id}</td><td className="p-4 text-[#c9c9cf]">{row.ticket_count} · {formatMoney(row.total_amount_in_paise)}</td><td className="p-4 capitalize text-[#c9c9cf]">{row.payment_status}</td><td className="p-4 text-[#c9c9cf]">{row.phone}</td></tr>)}</tbody>
+            </table>{!registrations.length && !busy && <p className="p-8 text-center text-sm text-[#aaa8a5]">No registration records found.</p>}</div>
+          </section>
+        )}
+
+        {activeTab === 'payments' && (
+          <section>
+            <div className="mb-5 flex flex-wrap items-end justify-between gap-3"><div><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Transaction ledger</p><h2 className="mt-1 font-head text-3xl font-black uppercase text-white">Payments</h2></div><button className={buttonClass} onClick={() => void exportRecords('payments')}><Download size={17} />Export CSV</button></div>
+            <div className="overflow-x-auto rounded-xl border border-[#292a30] bg-[#111215]"><table className="w-full min-w-[900px] text-left text-sm"><thead className="border-b border-[#292a30] text-xs uppercase text-[#aaa8a5]"><tr><th className="p-4">Participant</th><th className="p-4">Transaction</th><th className="p-4">Order ID</th><th className="p-4">Amount</th><th className="p-4">Status</th><th className="p-4">Date</th></tr></thead>
+              <tbody className="divide-y divide-[#24252b]">{payments.map((row) => <tr key={row.id}><td className="p-4"><div className="font-semibold text-white">{row.registration?.full_name || '—'}</div><div className="text-xs text-[#8e8d93]">{row.registration?.email}</div></td><td className="p-4 font-mono text-xs text-[#c9c9cf]">{row.razorpay_payment_id || row.registration?.reference_id || '—'}</td><td className="p-4 font-mono text-xs text-[#c9c9cf]">{row.razorpay_order_id}</td><td className="p-4 text-[#c9c9cf]">{formatMoney(row.amount_in_paise)}</td><td className="p-4 capitalize text-[#c9c9cf]">{row.status}</td><td className="p-4 text-[#c9c9cf]">{new Date(row.created_at).toLocaleString()}</td></tr>)}</tbody>
+            </table>{!payments.length && !busy && <p className="p-8 text-center text-sm text-[#aaa8a5]">No payment transaction records found.</p>}</div>
+          </section>
+        )}
+
+        {activeTab === 'enquiries' && (
+          <section>
+            <div className="mb-5"><p className="font-head text-xs font-bold uppercase tracking-[.16em] text-[#fc5300]">Partner relationships</p><h2 className="mt-1 font-head text-3xl font-black uppercase text-white">Collaboration enquiries</h2></div>
+            <div className="space-y-3">{enquiries.map((row) => <article key={row.id} className="rounded-xl border border-[#292a30] bg-[#111215] p-4 sm:p-5">
+              <div className="flex flex-col justify-between gap-4 sm:flex-row sm:items-start"><div><h3 className="font-semibold text-white">{row.name} <span className="font-normal text-[#aaa8a5]">· {row.organization_type}</span></h3><p className="mt-1 text-sm text-[#b4b0aa]">{row.city} · {row.phone} · {new Date(row.created_at).toLocaleString()}</p><p className="mt-3 text-sm text-[#ddd]">{row.support_options.join(', ')}</p>{row.message && <p className="mt-2 text-sm text-[#aaa8a5]">{row.message}</p>}</div>
+                <select aria-label={`Enquiry status for ${row.name}`} value={row.status} disabled={busy} onChange={(event) => void updateEnquiryStatus(row, event.target.value as AdminEnquiry['status'])} className="rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2 text-sm text-white"><option value="new">New</option><option value="contacted">Contacted</option><option value="archived">Archived</option></select>
+              </div></article>)}
+              {!enquiries.length && !busy && <p className="rounded-xl border border-[#292a30] bg-[#111215] p-8 text-center text-sm text-[#aaa8a5]">No collaboration enquiries found.</p>}
+            </div>
+          </section>
+        )}
+      </main>
+
+      {eventDialogOpen && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center overflow-y-auto bg-black/80 p-3 sm:p-6">
+          <form onSubmit={saveEvent} className="my-auto max-h-[94vh] w-full max-w-3xl overflow-y-auto rounded-2xl border border-[#303139] bg-[#111215] p-5 sm:p-7">
+            <div className="mb-5 flex items-center justify-between"><h2 className="font-head text-2xl font-black uppercase text-white">{editingEventId ? 'Edit event' : 'Create event'}</h2><button type="button" onClick={() => setEventDialogOpen(false)} aria-label="Close event form" className="text-[#aaa8a5] hover:text-white"><X /></button></div>
+            <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+              {([
+                ['title', 'Event title', 'text'],
+                ['date', 'Date', 'date'],
+                ['startTime', 'Start time', 'time'],
+                ['endTime', 'End time', 'time'],
+                ['venue', 'Venue', 'text'],
+                ['city', 'City', 'text'],
+                ['priceInPaise', 'Price (paise)', 'number'],
+                ['registrationCapacity', 'Capacity', 'number'],
+                ['coverImage', 'Cover image URL', 'text'],
+                ['registrationDeadline', 'Registration deadline', 'datetime-local'],
+              ] as Array<[keyof EventDraft, string, string]>).map(([field, label, type]) => (
+                <label key={field} className="text-sm font-semibold text-[#c9c9cf]">{label}<input required={['title', 'date', 'startTime', 'endTime', 'venue', 'city', 'priceInPaise', 'registrationCapacity'].includes(field)} type={type} min={type === 'number' ? '0' : undefined} value={eventDraft[field] as string} onChange={(event) => setEventDraft((draft) => ({ ...draft, [field]: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white outline-none focus:border-[#fc5300]" /></label>
+              ))}
+              <label className="text-sm font-semibold text-[#c9c9cf]">Category<select value={eventDraft.category} onChange={(event) => setEventDraft((draft) => ({ ...draft, category: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white"><option value="running">Running</option><option value="gym_hiit">Gym / HIIT</option><option value="bootcamp">Bootcamp</option><option value="yoga_mobility">Yoga / Mobility</option><option value="hyrox_crossfit">Hyrox / CrossFit</option><option value="cycling">Cycling</option></select></label>
+              <label className="text-sm font-semibold text-[#c9c9cf]">Organizer<select required value={eventDraft.primaryOrganizerId} onChange={(event) => setEventDraft((draft) => ({ ...draft, primaryOrganizerId: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white"><option value="">Select organizer</option>{organizations.map((organization) => <option key={organization.id} value={organization.id}>{organization.name}</option>)}</select></label>
+              <label className="text-sm font-semibold text-[#c9c9cf]">Status<select value={eventDraft.status} onChange={(event) => setEventDraft((draft) => ({ ...draft, status: event.target.value as EventDraft['status'] }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white"><option value="draft">Draft</option><option value="published">Published</option><option value="cancelled">Cancelled</option><option value="completed">Completed</option></select></label>
+              <label className="flex items-center gap-2 text-sm text-[#c9c9cf]"><input type="checkbox" checked={eventDraft.featured} onChange={(event) => setEventDraft((draft) => ({ ...draft, featured: event.target.checked }))} />Featured event</label>
+              <label className="text-sm font-semibold text-[#c9c9cf] sm:col-span-2">Description<textarea rows={3} value={eventDraft.description} onChange={(event) => setEventDraft((draft) => ({ ...draft, description: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white outline-none focus:border-[#fc5300]" /></label>
+              <label className="text-sm font-semibold text-[#c9c9cf]">Location details<input value={eventDraft.locationDetails} onChange={(event) => setEventDraft((draft) => ({ ...draft, locationDetails: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white outline-none focus:border-[#fc5300]" /></label>
+              <label className="text-sm font-semibold text-[#c9c9cf]">Cancellation policy<input value={eventDraft.cancellationPolicy} onChange={(event) => setEventDraft((draft) => ({ ...draft, cancellationPolicy: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white outline-none focus:border-[#fc5300]" /></label>
+              <label className="text-sm font-semibold text-[#c9c9cf] sm:col-span-2">Rules (one per line)<textarea rows={3} value={eventDraft.rules} onChange={(event) => setEventDraft((draft) => ({ ...draft, rules: event.target.value }))} className="mt-1.5 w-full rounded-lg border border-[#303139] bg-[#0a0a0c] px-3 py-2.5 text-white outline-none focus:border-[#fc5300]" /></label>
+            </div>
+            <div className="mt-6 flex justify-end gap-3"><button type="button" className={buttonClass} onClick={() => setEventDialogOpen(false)}>Cancel</button><button type="submit" disabled={busy} className="rounded-lg bg-[#fc5300] px-5 py-2.5 font-bold text-white hover:bg-[#ff7130] disabled:opacity-50">{busy ? 'Saving…' : 'Save event'}</button></div>
+          </form>
+        </div>
+      )}
+    </div>
+  );
+};

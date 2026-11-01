@@ -47,6 +47,31 @@ FitMeet is a fitness community platform designed to help people discover fitness
    npm run dev
    ```
 
+## Admin Portal
+
+The owner portal is available at `/admin/login`; the dashboard is at `/admin`.
+Apply all SQL migrations in `supabase/migrations` before use. Configure the
+Supabase URL and anon key for the frontend, and configure `SUPABASE_URL` plus
+`SUPABASE_SERVICE_ROLE_KEY` only in the server environment. Never expose the
+service-role key as a `VITE_` variable.
+
+New accounts receive the `customer` role. The security migration resets any
+previous `super_admin` assignments so they cannot inherit roles granted by the
+old self-editable profile policy. To authorize the site owner, first create the
+account through Supabase Auth, then run this once in the Supabase SQL editor
+using the owner's actual sign-in email:
+
+```sql
+UPDATE public.profiles
+SET role = 'super_admin'
+WHERE email = 'owner@example.com';
+```
+
+Admin authorization is checked against the database profile on every protected
+API request. Configure `RAZORPAY_KEY_ID` (or `VITE_RAZORPAY_KEY_ID`),
+`RAZORPAY_KEY_SECRET`, and `RAZORPAY_WEBHOOK_SECRET` on the server to accept and
+verify payments. Revenue reports include captured transactions only.
+
 ## Project
 
 FitMeet aims to bring fitness enthusiasts together through community-driven events and collaborations.

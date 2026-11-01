@@ -43,9 +43,6 @@ export const FaqSection: React.FC = () => {
             <HelpCircle className="h-4 w-4" />
             <span>Good To Know</span>
           </p>
-          <span className="text-xs text-slate-500 dark:text-[#8a8b93] font-mono">
-            Oct 28, 2026 · @Shubham
-          </span>
         </div>
 
         <h2 className="font-head font-bold text-3xl sm:text-4xl uppercase text-slate-900 dark:text-white mt-1">

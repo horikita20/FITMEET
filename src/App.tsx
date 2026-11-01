@@ -5,6 +5,10 @@ import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
 import { Hero } from './components/home/Hero';
 import { FeatureStrip } from './components/home/FeatureStrip';
+import { FirstSundaySection } from './components/home/FirstSundaySection';
+import { WhyJoinSection } from './components/home/WhyJoinSection';
+import { CollaborateSection } from './components/home/CollaborateSection';
+import { AboutSection } from './components/home/AboutSection';
 import { FaqSection } from './components/home/FaqSection';
 import { ContactSection } from './components/home/ContactSection';
 import { EventDiscovery } from './components/events/EventDiscovery';
@@ -15,7 +19,7 @@ import { AuthModal } from './components/auth/AuthModal';
 import { UserDashboard } from './components/dashboard/UserDashboard';
 import { OrganizerDashboard } from './components/organizer/OrganizerDashboard';
 import { CollaboratePage } from './components/collaboration/CollaboratePage';
-import { AdminDashboard } from './components/admin/AdminDashboard';
+import { AdminPortal } from './components/admin/AdminPortal';
 import { LegalModal } from './components/legal/LegalModal';
 import { MeetsPage } from './components/meets/MeetsPage';
 import { AboutPage } from './components/about/AboutPage';
@@ -64,9 +68,6 @@ const getViewFromHash = (): { view: string; nav: string } => {
   }
   if (rawHash === 'organizer-dashboard') {
     return { view: 'organizer-dashboard', nav: '' };
-  }
-  if (rawHash === 'admin-dashboard') {
-    return { view: 'admin-dashboard', nav: '' };
   }
   return { view: 'home', nav: 'home' };
 };
@@ -235,7 +236,10 @@ function FitMeetApp() {
               onCollaborateClick={() => handleNavigate('collaborate')}
             />
             <FeatureStrip />
-            <AboutPage onJoinClick={() => handleNavigate('meets')} onExploreClick={() => handleNavigate('meets')} />
+            <AboutSection onLearnMoreClick={() => handleNavigate('meets')} />
+            <FirstSundaySection />
+            <WhyJoinSection />
+            <CollaborateSection onCollaborateClick={() => handleNavigate('collaborate')} />
             <PartnerSection onPartnerClick={() => handleNavigate('collaborate')} />
           </>
         )}
@@ -320,18 +324,6 @@ function FitMeetApp() {
           />
         )}
 
-        {currentView === 'admin-dashboard' && (
-          <AdminDashboard
-            settings={settings}
-            events={events}
-            organizations={organizations}
-            onSettingsUpdated={(newSet) => {
-              setSettings(newSet);
-              showToast('Platform settings and CMS updated.');
-            }}
-            onRefreshData={loadAllData}
-          />
-        )}
       </main>
 
       {/* Footer */}
@@ -397,6 +389,10 @@ function FitMeetApp() {
 }
 
 export default function App() {
+  if (typeof window !== 'undefined' && /^\/(?:FITMEET\/)?admin(?:\/login)?\/?$/i.test(window.location.pathname)) {
+    return <AdminPortal />;
+  }
+
   return (
     <ThemeProvider>
       <AuthProvider>

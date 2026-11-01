@@ -42,7 +42,6 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 <Sparkles className="h-3 w-3" />
                 Official Policy Document
               </span>
-              <span className="text-[11px] text-[#8d8a85]">Oct 28, 2026 · @Shubham</span>
             </div>
             <h2 className="font-head font-bold text-2xl sm:text-3xl uppercase text-white tracking-tight">
               FitMeet Policies
@@ -352,7 +351,6 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
             className="inline-flex items-center gap-1.5 text-xs text-[#8d8a85] hover:text-white transition-colors"
           >
             <Download className="h-3.5 w-3.5 text-[#FC5300]" />
-            <span>FitMeet Policies · Oct 28, 2026 · @Shubham</span>
           </a>
 
           <button

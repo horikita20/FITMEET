@@ -5,8 +5,16 @@ import {
   CollaborationRequest,
   SiteSettings,
 } from '../types';
+import { supabase } from './supabase';
 
 const API_BASE = '/api';
+
+async function sessionHeaders(): Promise<Record<string, string>> {
+  const { data } = await supabase?.auth.getSession() ?? { data: { session: null } };
+  return data.session?.access_token
+    ? { Authorization: `Bearer ${data.session.access_token}` }
+    : {};
+}
 
 export async function fetchSiteSettings(): Promise<SiteSettings> {
   try {
@@ -79,9 +87,15 @@ export async function fetchEventById(id: string): Promise<FitnessEvent | null> {
 }
 
 export async function createEvent(eventData: Partial<FitnessEvent>): Promise<FitnessEvent> {
+  const { data: sessionData } = await supabase?.auth.getSession() ?? { data: { session: null } };
   const res = await fetch(`${API_BASE}/events`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: {
+      'Content-Type': 'application/json',
+      ...(sessionData.session?.access_token
+        ? { Authorization: `Bearer ${sessionData.session.access_token}` }
+        : {}),
+    },
     body: JSON.stringify(eventData),
   });
   if (!res.ok) {
@@ -151,6 +165,26 @@ export async function sendCollaborationRequest(data: {
   return await res.json();
 }
 
+export async function submitCollaborationEnquiry(data: {
+  name: string;
+  organizationType: string;
+  phone: string;
+  city: string;
+  supportOptions: string[];
+  message?: string;
+}) {
+  const res = await fetch(`${API_BASE}/collaboration-enquiries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const result = await res.json();
+    throw new Error(result.error || 'Unable to submit collaboration enquiry.');
+  }
+  return await res.json();
+}
+
 export async function updateCollaborationStatus(id: string, status: 'accepted' | 'rejected') {
   const res = await fetch(`${API_BASE}/collaborations/${id}`, {
     method: 'PATCH',
@@ -173,7 +207,7 @@ export async function registerFreeEvent(data: {
 }): Promise<EventRegistration> {
   const res = await fetch(`${API_BASE}/registrations/free`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await sessionHeaders()) },
     body: JSON.stringify(data),
   });
   if (!res.ok) {
@@ -188,12 +222,13 @@ export async function createRazorpayOrder(data: {
   eventId: string;
   ticketCount: number;
   userId?: string;
+  userName: string;
   userEmail: string;
   userPhone: string;
 }) {
   const res = await fetch(`${API_BASE}/razorpay/create-order`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await sessionHeaders()) },
     body: JSON.stringify(data),
   });
   if (!res.ok) {
@@ -219,7 +254,7 @@ export async function verifyRazorpayPayment(data: {
 }): Promise<EventRegistration> {
   const res = await fetch(`${API_BASE}/razorpay/verify-payment`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await sessionHeaders()) },
     body: JSON.stringify(data),
   });
   if (!res.ok) {
@@ -233,7 +268,9 @@ export async function verifyRazorpayPayment(data: {
 export async function fetchUserRegistrations(userId?: string): Promise<EventRegistration[]> {
   try {
     const query = userId ? `?userId=${encodeURIComponent(userId)}` : '';
-    const res = await fetch(`${API_BASE}/registrations${query}`);
+    const res = await fetch(`${API_BASE}/registrations${query}`, {
+      headers: await sessionHeaders(),
+    });
     if (!res.ok) return [];
     return await res.json();
   } catch {
@@ -287,4 +324,3 @@ export async function fetchWaitlist() {
     return [];
   }
 }
-

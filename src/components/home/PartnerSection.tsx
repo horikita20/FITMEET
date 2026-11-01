@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Plus, ArrowRight, Check, ChevronDown } from 'lucide-react';
 import { FitMeetEmblem } from '../common/FitMeetEmblem';
+import { submitCollaborationEnquiry } from '../../lib/api';
 
 const WA_NUMBER = '919835012345'; // Official FitMeet WhatsApp line
 
@@ -36,6 +37,7 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
   const [more, setMore] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleSupport = (val: string) => {
     setSupport((prev) =>
@@ -51,9 +53,10 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
     }, 50);
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
+    if (submitting) return;
 
     if (!name.trim()) {
       setError('Please add your gym, brand or coach name.');
@@ -88,7 +91,22 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
       '_blank',
       'noopener'
     );
-    setSuccess(true);
+    setSubmitting(true);
+    try {
+      await submitCollaborationEnquiry({
+        name: name.trim(),
+        organizationType: type,
+        phone: phone.trim(),
+        city: city.trim(),
+        supportOptions: support,
+        message: more.trim(),
+      });
+      setSuccess(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -338,6 +356,7 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
 
                   <button
                     type="submit"
+                    disabled={submitting}
                     className="w-full inline-flex items-center justify-center gap-2 px-6 py-3.5 rounded-lg font-bold uppercase tracking-wider text-sm text-white bg-[#ff5a1f] hover:bg-[#ff7a2e] transition-all transform active:scale-98 shadow-lg shadow-[#ff5a1f]/25 cursor-pointer mt-2"
                   >
                     <span>Send on WhatsApp</span>

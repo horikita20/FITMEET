@@ -20,6 +20,7 @@ interface ContactSectionProps {
 export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initialInterest }) => {
   const [name, setName] = useState('');
   const [email, setEmail] = useState('');
+  const [phone, setPhone] = useState('');
   const [interest, setInterest] = useState<string>(initialInterest || INTEREST_OPTIONS[0]);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
@@ -39,6 +40,7 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
     setTimeout(() => {
       setName('');
       setEmail('');
+      setPhone('');
       setMessage('');
     }, 5000);
   };
@@ -114,6 +116,19 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
                       className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-[#0a0a0c] border border-slate-300 dark:border-[#34363c] focus:border-[#FC5300] rounded-md text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors"
                     />
                   </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-[#b4b0aa] mb-1">
+                    Contact Number
+                  </label>
+                  <input
+                    type="tel"
+                    placeholder="+91 98350 12345"
+                    value={phone}
+                    onChange={(e) => setPhone(e.target.value)}
+                    className="w-full px-3.5 py-2.5 text-sm bg-white dark:bg-[#0a0a0c] border border-slate-300 dark:border-[#34363c] focus:border-[#FC5300] rounded-md text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors"
+                  />
                 </div>
 
                 <div>

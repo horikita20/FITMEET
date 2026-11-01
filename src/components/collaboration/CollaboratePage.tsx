@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { ArrowRight, Check } from 'lucide-react';
+import { submitCollaborationEnquiry } from '../../lib/api';
 
 const WA_NUMBER = '919835012345'; // Official FitMeet line
 
@@ -9,7 +10,7 @@ const PARTNER_CATEGORIES = [
   { title: 'Coaches & trainers', desc: 'Support sessions with form tips' },
   { title: 'Fitness & nutrition brands', desc: 'Fuel the crew' },
   { title: 'Sportswear & sports stores', desc: 'Gear up the community' },
-  { title: 'Cafés & juice bars', desc: 'Host the post-workout hangout' },
+  { title: 'Supplement stores & cafe', desc: 'Host the post-workout hangout' },
   { title: 'Physio & sports clinics', desc: 'Keep everyone safe' },
   { title: 'Photographers & videographers', desc: 'Capture every meet' },
   { title: 'Creators & influencers', desc: 'Spread the word across Patna' },
@@ -45,6 +46,7 @@ export const CollaboratePage: React.FC = () => {
   const [more, setMore] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
 
   const toggleSupport = (val: string) => {
     setSupport((prev) =>
@@ -56,10 +58,11 @@ export const CollaboratePage: React.FC = () => {
     document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError(null);
     setSuccess(false);
+    if (submitting) return;
 
     if (!name.trim()) {
       setError('Please add your gym, brand or coach name.');
@@ -95,7 +98,22 @@ export const CollaboratePage: React.FC = () => {
       .join('\n');
 
     window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
-    setSuccess(true);
+    setSubmitting(true);
+    try {
+      await submitCollaborationEnquiry({
+        name: name.trim(),
+        organizationType: type,
+        phone: phone.trim(),
+        city: city.trim(),
+        supportOptions: support,
+        message: more.trim(),
+      });
+      setSuccess(true);
+    } catch (submitError) {
+      setError(submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.');
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
@@ -107,7 +125,7 @@ export const CollaboratePage: React.FC = () => {
             Now onboarding founding collaborators
           </div>
           <h1 className="font-head font-extrabold text-5xl sm:text-7xl lg:text-8xl text-white uppercase leading-[0.92] my-5 sm:my-7">
-            Collaborate <span className="block text-[#ff5a00]">with us.</span>
+            Collaborate <span className="block text-[#ff5a00]">with us</span>
           </h1>
           <p className="max-w-[560px] text-base sm:text-lg text-[#d0d1d6] leading-relaxed mb-8">
             FitMeet hosts and runs every meet. You help power it with your space, your expertise or your brand, and reach Patna’s fitness community from day one.
@@ -352,6 +370,7 @@ export const CollaboratePage: React.FC = () => {
                 )}
 
                 <button
+                  disabled={submitting}
                   type="submit"
                   className="w-full py-4 rounded-md font-head font-bold text-sm uppercase tracking-wider text-white bg-[#ff5a00] hover:bg-[#e24f00] transition-colors shadow-lg shadow-[#ff5a00]/25 cursor-pointer flex items-center justify-center gap-2"
                 >
@@ -376,4 +395,3 @@ export const CollaboratePage: React.FC = () => {
     </div>
   );
 };
-
