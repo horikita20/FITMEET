@@ -111,7 +111,10 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
               </h1>
 
               <p className="mt-6 text-base sm:text-lg lg:text-xl text-[#c9c9cf] leading-relaxed max-w-2xl font-light">
-                FitMeet is Patna’s Sunday fitness game. Every week, a new gym or outdoor spot becomes the arena, where people take on fitness challenges, play team games, win goodies and leave with new friends. We train, we play, we connect, and we have fun doing it.
+                FitMeet is Patna’s Sunday fitness game. Every week, a new gym or outdoor spot
+                becomes the arena, where people take on fitness challenges, play team games, win
+                goodies and leave with new friends. We train, we play, we connect, and we have fun
+                doing it.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-4">
@@ -170,15 +173,55 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
                   <rect x="9" y="18" width="30" height="27" rx="1.5" fill="#2b2b31" />
                   <path d="M6 19.5L24 9L42 19.5z" fill="#ff5a1f" />
                   <rect x="17" y="21.5" width="14" height="5" rx="1" fill="#fff" />
-                  <path d="M20.5 24h7M20.5 22.8v2.4M27.5 22.8v2.4" stroke="#ff5a1f" strokeWidth="1.4" strokeLinecap="round" />
-                  <rect x="12" y="29" width="5" height="5" rx=".8" fill="#ffb37a" fillOpacity=".25" />
-                  <rect x="31" y="29" width="5" height="5" rx=".8" fill="#ffb37a" fillOpacity=".25" />
+                  <path
+                    d="M20.5 24h7M20.5 22.8v2.4M27.5 22.8v2.4"
+                    stroke="#ff5a1f"
+                    strokeWidth="1.4"
+                    strokeLinecap="round"
+                  />
+                  <rect
+                    x="12"
+                    y="29"
+                    width="5"
+                    height="5"
+                    rx=".8"
+                    fill="#ffb37a"
+                    fillOpacity=".25"
+                  />
+                  <rect
+                    x="31"
+                    y="29"
+                    width="5"
+                    height="5"
+                    rx=".8"
+                    fill="#ffb37a"
+                    fillOpacity=".25"
+                  />
                   <rect x="20" y="33" width="8" height="12" fill="#111114" />
                   <rect x="20" y="33" width="8" height="12" fill="#ffb37a" />
                   <g>
-                    <animateTransform attributeName="transform" type="translate" values="20 0;0 0;0 0" keyTimes="0;.5;1" dur="3s" repeatCount="indefinite" />
-                    <animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.08;.5;.6;1" dur="3s" repeatCount="indefinite" />
-                    <path d="M23 41l-1.5 3.5M25 41l1.5 3.5" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round" />
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values="20 0;0 0;0 0"
+                      keyTimes="0;.5;1"
+                      dur="3s"
+                      repeatCount="indefinite"
+                    />
+                    <animate
+                      attributeName="opacity"
+                      values="0;1;1;0;0"
+                      keyTimes="0;.08;.5;.6;1"
+                      dur="3s"
+                      repeatCount="indefinite"
+                    />
+                    <path
+                      d="M23 41l-1.5 3.5M25 41l1.5 3.5"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="1.6"
+                      strokeLinecap="round"
+                    />
                     <rect x="21.7" y="36.5" width="4.6" height="5" rx="1.6" fill="#ff5a1f" />
                     <circle cx="24" cy="34.5" r="2" fill="#fff" />
                   </g>
@@ -188,7 +231,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
                 New arena, every Sunday
               </h3>
               <p className="text-sm sm:text-base text-[#9a9aa3] leading-relaxed">
-                From neighbourhood gyms to open-air spots, every meet takes you somewhere new in Patna.
+                From neighbourhood gyms to open-air spots, every meet takes you somewhere new in
+                Patna.
               </p>
             </article>
 
@@ -203,22 +247,73 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
                     </clipPath>
                   </defs>
                   <g>
-                    <animateTransform attributeName="transform" type="translate" values="0 0;0 -2.5;0 0" dur="1.6s" repeatCount="indefinite" calcMode="spline" keySplines=".4 0 .2 1;.4 0 .2 1" />
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values="0 0;0 -2.5;0 0"
+                      dur="1.6s"
+                      repeatCount="indefinite"
+                      calcMode="spline"
+                      keySplines=".4 0 .2 1;.4 0 .2 1"
+                    />
                     <rect x="15.5" y="38" width="17" height="5" rx="1.5" fill="#2b2b31" />
                     <rect x="21.5" y="27" width="5" height="11.5" rx="1" fill="#ffb37a" />
-                    <path d="M14 11H10.5a4.5 4.5 0 0 0 5 8M34 11h3.5a4.5 4.5 0 0 1-5 8" fill="none" stroke="#ff8a50" strokeWidth="2.4" strokeLinecap="round" />
+                    <path
+                      d="M14 11H10.5a4.5 4.5 0 0 0 5 8M34 11h3.5a4.5 4.5 0 0 1-5 8"
+                      fill="none"
+                      stroke="#ff8a50"
+                      strokeWidth="2.4"
+                      strokeLinecap="round"
+                    />
                     <path d="M14 8h20v9a10 10 0 0 1-20 0z" fill="#ff5a1f" />
-                    <path d="M24 11.5l1.4 2.9 3.2.4-2.3 2.2.6 3.1-2.9-1.5-2.9 1.5.6-3.1-2.3-2.2 3.2-.4z" fill="#fff" />
+                    <path
+                      d="M24 11.5l1.4 2.9 3.2.4-2.3 2.2.6 3.1-2.9-1.5-2.9 1.5.6-3.1-2.3-2.2 3.2-.4z"
+                      fill="#fff"
+                    />
                     <g clipPath="url(#tclip-about)">
-                      <rect x="-6" y="4" width="5" height="30" fill="#fff" fillOpacity=".45" transform="skewX(-18)">
-                        <animate attributeName="x" values="-6;-6;40;40" keyTimes="0;.45;.75;1" dur="2.4s" repeatCount="indefinite" />
+                      <rect
+                        x="-6"
+                        y="4"
+                        width="5"
+                        height="30"
+                        fill="#fff"
+                        fillOpacity=".45"
+                        transform="skewX(-18)"
+                      >
+                        <animate
+                          attributeName="x"
+                          values="-6;-6;40;40"
+                          keyTimes="0;.45;.75;1"
+                          dur="2.4s"
+                          repeatCount="indefinite"
+                        />
                       </rect>
                     </g>
                   </g>
                   <g opacity="0">
-                    <animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.15;.6;1" dur="2.4s" repeatCount="indefinite" />
-                    <rect x="7" y="4" width="2.6" height="2.6" fill="#ff5a1f" transform="rotate(20 8 5)" />
-                    <rect x="38" y="6" width="2.4" height="2.4" fill="#4fc3f7" transform="rotate(-25 39 7)" />
+                    <animate
+                      attributeName="opacity"
+                      values="0;1;1;0"
+                      keyTimes="0;.15;.6;1"
+                      dur="2.4s"
+                      repeatCount="indefinite"
+                    />
+                    <rect
+                      x="7"
+                      y="4"
+                      width="2.6"
+                      height="2.6"
+                      fill="#ff5a1f"
+                      transform="rotate(20 8 5)"
+                    />
+                    <rect
+                      x="38"
+                      y="6"
+                      width="2.4"
+                      height="2.4"
+                      fill="#4fc3f7"
+                      transform="rotate(-25 39 7)"
+                    />
                     <circle cx="12" cy="1.5" r="1.2" fill="#ffd54f" />
                     <circle cx="36" cy="1" r="1.1" fill="#8bc34a" />
                   </g>
@@ -239,23 +334,71 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
                   <ellipse cx="24" cy="44.5" rx="15" ry="1.6" fill="#000" fillOpacity=".55" />
                   {/* High-five burst */}
                   <g opacity="0">
-                    <animate attributeName="opacity" values="0;0;1;0;0" keyTimes="0;.38;.45;.72;1" dur="2.4s" repeatCount="indefinite" />
-                    <path d="M24 1v2.5M18.5 3l1.8 1.8M29.5 3l-1.8 1.8" fill="none" stroke="#fff" strokeWidth="1.4" strokeLinecap="round" />
-                    <path d="M37 9c-1-1.6-3.6-.6-2.2 1.5l2.2 2.2l2.2-2.2c1.4-2.1-1.2-3.1-2.2-1.5z" fill="#ff5a1f" />
-                    <path d="M11 9c-.8-1.2-2.8-.4-1.7 1.2l1.7 1.7l1.7-1.7c1.1-1.6-.9-2.4-1.7-1.2z" fill="#ffb37a" />
+                    <animate
+                      attributeName="opacity"
+                      values="0;0;1;0;0"
+                      keyTimes="0;.38;.45;.72;1"
+                      dur="2.4s"
+                      repeatCount="indefinite"
+                    />
+                    <path
+                      d="M24 1v2.5M18.5 3l1.8 1.8M29.5 3l-1.8 1.8"
+                      fill="none"
+                      stroke="#fff"
+                      strokeWidth="1.4"
+                      strokeLinecap="round"
+                    />
+                    <path
+                      d="M37 9c-1-1.6-3.6-.6-2.2 1.5l2.2 2.2l2.2-2.2c1.4-2.1-1.2-3.1-2.2-1.5z"
+                      fill="#ff5a1f"
+                    />
+                    <path
+                      d="M11 9c-.8-1.2-2.8-.4-1.7 1.2l1.7 1.7l1.7-1.7c1.1-1.6-.9-2.4-1.7-1.2z"
+                      fill="#ffb37a"
+                    />
                   </g>
                   {/* Person A */}
                   <g>
-                    <animateTransform attributeName="transform" type="translate" values="0 0;4 0;4 0;0 0" keyTimes="0;.4;.7;1" calcMode="spline" keySplines=".4 0 .2 1;0 0 1 1;.4 0 .2 1" dur="2.4s" repeatCount="indefinite" />
-                    <path d="M12 32L11.5 43M16 32L16.5 43" fill="none" stroke="#2b2b31" strokeWidth="4" strokeLinecap="round" />
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values="0 0;4 0;4 0;0 0"
+                      keyTimes="0;.4;.7;1"
+                      calcMode="spline"
+                      keySplines=".4 0 .2 1;0 0 1 1;.4 0 .2 1"
+                      dur="2.4s"
+                      repeatCount="indefinite"
+                    />
+                    <path
+                      d="M12 32L11.5 43M16 32L16.5 43"
+                      fill="none"
+                      stroke="#2b2b31"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
                     <rect x="9.5" y="20" width="9" height="13" rx="3.5" fill="#ff5a1f" />
                     <circle cx="14" cy="15" r="4" fill="#fff" />
                     <path d="M10 14.5a4 4 0 0 1 8 0z" fill="#2b2b31" />
                   </g>
                   {/* Person B */}
                   <g>
-                    <animateTransform attributeName="transform" type="translate" values="0 0;-4 0;-4 0;0 0" keyTimes="0;.4;.7;1" calcMode="spline" keySplines=".4 0 .2 1;0 0 1 1;.4 0 .2 1" dur="2.4s" repeatCount="indefinite" />
-                    <path d="M32 32L31.5 43M36 32L36.5 43" fill="none" stroke="#2b2b31" strokeWidth="4" strokeLinecap="round" />
+                    <animateTransform
+                      attributeName="transform"
+                      type="translate"
+                      values="0 0;-4 0;-4 0;0 0"
+                      keyTimes="0;.4;.7;1"
+                      calcMode="spline"
+                      keySplines=".4 0 .2 1;0 0 1 1;.4 0 .2 1"
+                      dur="2.4s"
+                      repeatCount="indefinite"
+                    />
+                    <path
+                      d="M32 32L31.5 43M36 32L36.5 43"
+                      fill="none"
+                      stroke="#2b2b31"
+                      strokeWidth="4"
+                      strokeLinecap="round"
+                    />
                     <rect x="29.5" y="20" width="9" height="13" rx="3.5" fill="#ffb37a" />
                     <circle cx="34" cy="15" r="4" fill="#fff" />
                     <path d="M30 14.5a4 4 0 0 1 8 0z" fill="#2b2b31" />
@@ -266,7 +409,8 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
                 Open to everyone
               </h3>
               <p className="text-sm sm:text-base text-[#9a9aa3] leading-relaxed">
-                First-timer or regular, solo or with friends. If you show up, you’re part of the crew.
+                First-timer or regular, solo or with friends. If you show up, you’re part of the
+                crew.
               </p>
             </article>
           </div>
@@ -285,17 +429,18 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
 
             <div className="lg:col-span-8 rv space-y-5 text-base sm:text-lg text-[#c9c9cf] leading-relaxed font-light">
               <p>
-                FitMeet started with a simple question: why should Sunday mornings in Patna be spent on the sofa? We wanted a place where fitness feels like play, where strangers become teammates, and where every week brings a new gym, new coaches and new energy.
+                FitMeet started with a simple question: why should Sunday mornings in Patna be spent
+                on the sofa? We wanted a place where fitness feels like play, where strangers become
+                teammates, and where every week brings a new gym, new coaches and new energy.
               </p>
               <p>
-                So we built it. FitMeet hosts and runs every meet, working with local gyms, coaches and brands to create Sundays people actually look forward to.
+                So we built it. FitMeet hosts and runs every meet, working with local gyms, coaches
+                and brands to create Sundays people actually look forward to.
               </p>
               <div className="font-head font-black text-2xl sm:text-3xl lg:text-4xl uppercase text-white pt-3">
                 New place. New challenge. <span className="text-[#ff5a1f]">Same crew.</span>
               </div>
-              <p>
-                If you’ve been waiting for a reason to start, this is it.
-              </p>
+              <p>If you’ve been waiting for a reason to start, this is it.</p>
 
               <div className="pt-4">
                 <button
@@ -313,4 +458,3 @@ export const AboutPage: React.FC<AboutPageProps> = ({ onJoinClick, onExploreClic
     </div>
   );
 };
-

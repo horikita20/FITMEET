@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Ticket, Calendar, Clock, MapPin, QrCode, Download, CreditCard, User, AlertCircle, Trash2 } from 'lucide-react';
+import {
+  Ticket,
+  Calendar,
+  Clock,
+  MapPin,
+  QrCode,
+  Download,
+  CreditCard,
+  User,
+  AlertCircle,
+  Trash2,
+} from 'lucide-react';
 import { EventRegistration } from '../../types';
 import { useAuth } from '../../context/AuthContext';
 
@@ -136,14 +147,19 @@ export const UserDashboard: React.FC<UserDashboardProps> = ({
                       <div className="py-4 space-y-2 text-xs text-[#e4e1dc]">
                         <div className="flex items-center gap-2">
                           <Calendar className="h-4 w-4 text-[#FC5300]" />
-                          <span>{reg.eventDate} · {reg.eventTime}</span>
+                          <span>
+                            {reg.eventDate} · {reg.eventTime}
+                          </span>
                         </div>
                         <div className="flex items-start gap-2">
                           <MapPin className="h-4 w-4 text-[#FC5300] shrink-0 mt-0.5" />
-                          <span className="text-[#b4b0aa]">{reg.eventVenue}, {reg.eventCity}</span>
+                          <span className="text-[#b4b0aa]">
+                            {reg.eventVenue}, {reg.eventCity}
+                          </span>
                         </div>
                         <div className="pt-2 text-[11px] text-[#b4b0aa]">
-                          Participant: <strong className="text-white">{reg.fullName}</strong> ({reg.ticketCount} Seat)
+                          Participant: <strong className="text-white">{reg.fullName}</strong> (
+                          {reg.ticketCount} Seat)
                         </div>
                       </div>
                     </div>

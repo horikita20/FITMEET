@@ -1,5 +1,16 @@
 import React, { useState } from 'react';
-import { Handshake, Building2, Award, Calendar, Check, X, Send, Users, ShieldCheck, ArrowRight } from 'lucide-react';
+import {
+  Handshake,
+  Building2,
+  Award,
+  Calendar,
+  Check,
+  X,
+  Send,
+  Users,
+  ShieldCheck,
+  ArrowRight,
+} from 'lucide-react';
 import { Organization, CollaborationRequest, FitnessEvent } from '../../types';
 import { sendCollaborationRequest, updateCollaborationStatus } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -78,8 +89,8 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               Gyms, Brands & Coaches Collaboration Hub
             </h1>
             <p className="text-xs sm:text-sm text-[#b4b0aa] mt-1 max-w-2xl leading-relaxed">
-              Connect with leading training gyms, sports brands, and elite coaches. Propose co-hosted
-              community events, combine member bases, and scale your fitness impact.
+              Connect with leading training gyms, sports brands, and elite coaches. Propose
+              co-hosted community events, combine member bases, and scale your fitness impact.
             </p>
           </div>
 
@@ -106,9 +117,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               <h2 className="font-head font-bold text-2xl uppercase text-white">
                 Verified Community Organizations
               </h2>
-              <span className="text-xs text-[#b4b0aa]">
-                {organizations.length} Partners Active
-              </span>
+              <span className="text-xs text-[#b4b0aa]">{organizations.length} Partners Active</span>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -119,9 +128,7 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
                 >
                   <div>
                     <div className="flex items-center justify-between text-[10px] uppercase font-mono mb-2">
-                      <span className="text-[#FC5300] font-bold">
-                        {org.type.replace('_', ' ')}
-                      </span>
+                      <span className="text-[#FC5300] font-bold">{org.type.replace('_', ' ')}</span>
                       <span className="text-emerald-400">Verified</span>
                     </div>
 
@@ -292,7 +299,8 @@ export const CollaborationHub: React.FC<CollaborationHubProps> = ({
               <div className="p-3 bg-[#0a0a0c] border border-[#25272c] rounded-lg text-[11px] text-[#b4b0aa] flex items-start gap-2">
                 <ShieldCheck className="h-4 w-4 text-[#FC5300] shrink-0 mt-0.5" />
                 <span>
-                  Co-host logos and descriptions will appear alongside the primary organizer on the public event page once accepted.
+                  Co-host logos and descriptions will appear alongside the primary organizer on the
+                  public event page once accepted.
                 </span>
               </div>
 

@@ -6,3 +6,7 @@ coverage/
 *.log
 .env*
 !.env.example
+
+# OS files
+Thumbs.db
+Desktop.ini

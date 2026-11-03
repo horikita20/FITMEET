@@ -3,12 +3,7 @@ import { ThemeProvider } from './context/ThemeContext';
 import { AuthProvider, useAuth } from './context/AuthContext';
 import { Header } from './components/layout/Header';
 import { Footer } from './components/layout/Footer';
-import { Hero } from './components/home/Hero';
-import { FeatureStrip } from './components/home/FeatureStrip';
-import { FirstSundaySection } from './components/home/FirstSundaySection';
-import { WhyJoinSection } from './components/home/WhyJoinSection';
-import { CollaborateSection } from './components/home/CollaborateSection';
-import { AboutSection } from './components/home/AboutSection';
+import { ReferenceHomepage } from './components/home/ReferenceHomepage';
 import { FaqSection } from './components/home/FaqSection';
 import { ContactSection } from './components/home/ContactSection';
 import { EventDiscovery } from './components/events/EventDiscovery';
@@ -24,7 +19,6 @@ import { LegalModal } from './components/legal/LegalModal';
 import { MeetsPage } from './components/meets/MeetsPage';
 import { AboutPage } from './components/about/AboutPage';
 import { GallerySection } from './components/home/GallerySection';
-import { PartnerSection } from './components/home/PartnerSection';
 import {
   fetchEvents,
   fetchOrganizations,
@@ -32,7 +26,13 @@ import {
   fetchUserRegistrations,
   fetchSiteSettings,
 } from './lib/api';
-import { FitnessEvent, Organization, EventRegistration, CollaborationRequest, SiteSettings } from './types';
+import {
+  FitnessEvent,
+  Organization,
+  EventRegistration,
+  CollaborationRequest,
+  SiteSettings,
+} from './types';
 import { Check, X } from 'lucide-react';
 
 // Helper function to resolve view and active navigation state from the URL hash
@@ -74,6 +74,20 @@ const getViewFromHash = (): { view: string; nav: string } => {
 
 function FitMeetApp() {
   const { user, isAuthenticated } = useAuth();
+
+  useEffect(() => {
+    if (
+      user?.id !== 'b00526d3-4760-4426-997a-d6792338619b' ||
+      user.role !== 'admin' ||
+      /\/admin(?:\/login)?\/?$/i.test(window.location.pathname)
+    ) {
+      return;
+    }
+
+    window.location.assign(
+      window.location.pathname.toLowerCase().startsWith('/fitmeet') ? '/FITMEET/admin' : '/admin'
+    );
+  }, [user?.id, user?.role]);
 
   // Navigation State initialized from URL hash for refresh and bookmark support
   const initialNav = getViewFromHash();
@@ -227,24 +241,12 @@ function FitMeetApp() {
 
       {/* Main Content Router */}
       <main className="flex-1">
-        {currentView === 'home' && (
-          <>
-            <Hero
-              settings={settings}
-              onRegisterClick={() => handleNavigate('meets')}
-              onExploreClick={() => handleNavigate('meets')}
-              onCollaborateClick={() => handleNavigate('collaborate')}
-            />
-            <FeatureStrip />
-            <AboutSection onLearnMoreClick={() => handleNavigate('meets')} />
-            <FirstSundaySection />
-            <WhyJoinSection />
-            <CollaborateSection onCollaborateClick={() => handleNavigate('collaborate')} />
-            <PartnerSection onPartnerClick={() => handleNavigate('collaborate')} />
-          </>
-        )}
+        {currentView === 'home' && <ReferenceHomepage />}
 
-        {(currentView === 'meets' || currentView === 'discover' || currentView === 'events' || currentView === 'runs') && (
+        {(currentView === 'meets' ||
+          currentView === 'discover' ||
+          currentView === 'events' ||
+          currentView === 'runs') && (
           <MeetsPage
             events={events}
             onNavigateHome={() => handleNavigate('home')}
@@ -269,19 +271,22 @@ function FitMeetApp() {
         {currentView === 'careers' && (
           <div className="py-16 bg-[#0a0a0c]">
             <div className="mx-auto max-w-[1240px] px-4 sm:px-8 mb-10 text-center">
-              <span className="text-[#ff5a1f] font-head font-bold text-xs uppercase tracking-widest">CAREERS AT FITMEET</span>
-              <h1 className="font-head font-black text-3xl sm:text-5xl uppercase text-white mt-2">Join the FitMeet Team</h1>
+              <span className="text-[#ff5a1f] font-head font-bold text-xs uppercase tracking-widest">
+                CAREERS AT FITMEET
+              </span>
+              <h1 className="font-head font-black text-3xl sm:text-5xl uppercase text-white mt-2">
+                Join the FitMeet Team
+              </h1>
               <p className="mt-4 text-[#9a9aa3] max-w-xl mx-auto text-sm sm:text-base">
-                We are building Patna's most energetic fitness community. We're looking for trainers, coaches, event coordinators, and content creators.
+                We are building Patna's most energetic fitness community. We're looking for
+                trainers, coaches, event coordinators, and content creators.
               </p>
             </div>
             <ContactSection settings={settings} initialInterest="Careers / Job Application" />
           </div>
         )}
 
-        {currentView === 'collaborate' && (
-          <CollaboratePage />
-        )}
+        {currentView === 'collaborate' && <CollaboratePage />}
 
         {currentView === 'faqs' && (
           <div className="py-12 bg-[#0a0a0c]">
@@ -311,7 +316,7 @@ function FitMeetApp() {
           />
         )}
 
-        {currentView === 'organizer-dashboard' && (
+        {currentView === 'organizer-dashboard' && user?.role === 'admin' && (
           <OrganizerDashboard
             events={events}
             organizations={organizations}
@@ -323,7 +328,6 @@ function FitMeetApp() {
             onViewEvent={handleOpenDetail}
           />
         )}
-
       </main>
 
       {/* Footer */}
@@ -364,10 +368,7 @@ function FitMeetApp() {
         onOpenPrivacy={() => setLegalModalType('privacy')}
       />
 
-      <LegalModal
-        type={legalModalType}
-        onClose={() => setLegalModalType(null)}
-      />
+      <LegalModal type={legalModalType} onClose={() => setLegalModalType(null)} />
 
       {/* Live Feedback Toast */}
       {toastMessage && (
@@ -389,7 +390,10 @@ function FitMeetApp() {
 }
 
 export default function App() {
-  if (typeof window !== 'undefined' && /^\/(?:FITMEET\/)?admin(?:\/login)?\/?$/i.test(window.location.pathname)) {
+  if (
+    typeof window !== 'undefined' &&
+    /^\/(?:FITMEET\/)?admin(?:\/login)?\/?$/i.test(window.location.pathname)
+  ) {
     return <AdminPortal />;
   }
 

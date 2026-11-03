@@ -1,7 +1,18 @@
 import React from 'react';
-import { X, Calendar, Clock, MapPin, Users, ShieldCheck, ArrowRight, Building2, Flame } from 'lucide-react';
+import {
+  X,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  ShieldCheck,
+  ArrowRight,
+  Building2,
+  Flame,
+} from 'lucide-react';
 import { FitnessEvent } from '../../types';
 import { ImageWithFallback } from '../common/ImageWithFallback';
+import { getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface EventDetailModalProps {
   event: FitnessEvent | null;
@@ -25,7 +36,7 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
         <div className="relative aspect-[21/9] sm:aspect-[16/7] bg-black">
           <ImageWithFallback
             src={event.coverImage}
-            fallbackSrc="/assets/images/hero_runners_dawn.jpg"
+            fallbackSrc={getPublicAssetUrl('assets/images/hero_runners_dawn.jpg')}
             alt={event.title}
             className="w-full h-full object-cover"
           />
@@ -56,26 +67,40 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
             <div className="flex items-center gap-3">
               <Calendar className="h-5 w-5 text-[#FC5300] shrink-0" />
               <div>
-                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">Date</span>
-                <span className="text-slate-900 dark:text-white font-medium">{event.displayDate}</span>
+                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">
+                  Date
+                </span>
+                <span className="text-slate-900 dark:text-white font-medium">
+                  {event.displayDate}
+                </span>
               </div>
             </div>
 
             <div className="flex items-center gap-3">
               <Clock className="h-5 w-5 text-[#FC5300] shrink-0" />
               <div>
-                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">Timing</span>
-                <span className="text-slate-900 dark:text-white font-medium">{event.startTime} - {event.endTime}</span>
+                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">
+                  Timing
+                </span>
+                <span className="text-slate-900 dark:text-white font-medium">
+                  {event.startTime} - {event.endTime}
+                </span>
               </div>
             </div>
 
             <div className="flex items-center gap-3 sm:col-span-2">
               <MapPin className="h-5 w-5 text-[#FC5300] shrink-0 mt-0.5" />
               <div>
-                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">Venue</span>
-                <span className="text-slate-900 dark:text-white font-medium">{event.venue}, {event.city}</span>
+                <span className="text-slate-500 dark:text-[#b4b0aa] text-[10px] uppercase font-bold block">
+                  Venue
+                </span>
+                <span className="text-slate-900 dark:text-white font-medium">
+                  {event.venue}, {event.city}
+                </span>
                 {event.locationDetails && (
-                  <span className="text-[11px] text-slate-500 dark:text-[#b4b0aa] block mt-0.5">({event.locationDetails})</span>
+                  <span className="text-[11px] text-slate-500 dark:text-[#b4b0aa] block mt-0.5">
+                    ({event.locationDetails})
+                  </span>
                 )}
               </div>
             </div>
@@ -110,12 +135,17 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                   Approved Co-Hosts:
                 </span>
                 {event.coHosts.map((ch: any) => (
-                  <div key={ch.organizationId} className="flex items-center justify-between text-xs text-[#FC5300] dark:text-[#ff7a2e]">
+                  <div
+                    key={ch.organizationId}
+                    className="flex items-center justify-between text-xs text-[#FC5300] dark:text-[#ff7a2e]"
+                  >
                     <span className="flex items-center gap-1.5">
                       <Users className="h-3.5 w-3.5" />
                       {ch.organizationName}
                     </span>
-                    <span className="text-[11px] text-slate-500 dark:text-[#b4b0aa] font-mono">{ch.role}</span>
+                    <span className="text-[11px] text-slate-500 dark:text-[#b4b0aa] font-mono">
+                      {ch.role}
+                    </span>
                   </div>
                 ))}
               </div>
@@ -151,7 +181,9 @@ export const EventDetailModal: React.FC<EventDetailModalProps> = ({
                 ) : (
                   <span>
                     ₹{(event.priceInPaise / 100).toFixed(2)}{' '}
-                    <span className="text-xs text-slate-500 dark:text-[#b4b0aa] font-normal font-sans">/ participant</span>
+                    <span className="text-xs text-slate-500 dark:text-[#b4b0aa] font-normal font-sans">
+                      / participant
+                    </span>
                   </span>
                 )}
               </div>

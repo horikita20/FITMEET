@@ -29,7 +29,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           localStorage.removeItem(LOCAL_USER_KEY);
           return null;
         }
-        return { ...parsed, role: 'customer' };
+        return { ...parsed, role: 'user' };
       }
     } catch {
       // fallback
@@ -67,7 +67,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           lastName,
           fullName,
           phone: meta.phone || undefined,
-          role: 'customer',
+          role: 'user',
           createdAt: session.user.created_at,
         };
         setUser(nextUser);
@@ -87,7 +87,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
                 setUser(null);
                 return;
               }
-              if (data?.role === 'customer' || data?.role === 'organizer' || data?.role === 'super_admin') {
+              if (
+                data?.role === 'user' ||
+                data?.role === 'admin'
+              ) {
                 setUser((current) =>
                   current?.id === session.user.id ? { ...current, role: data.role } : current
                 );
@@ -118,7 +121,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
   };
 
-  const login = async (email: string, password?: string, forcedRole?: UserRole) => {
+  const login = async (email: string, password?: string) => {
     if (isSupabaseConfigured && supabase) {
       if (password) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -134,7 +137,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     // Explicit demo fallback when Supabase is not configured
-    const assignedRole: UserRole = 'customer';
+    const assignedRole: UserRole = 'user';
 
     const firstName = email.split('@')[0];
     const loggedInUser: UserProfile = {
@@ -149,12 +152,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     setUser(loggedInUser);
   };
 
-  const signUp = async (
-    email: string,
-    fullName: string,
-    phone: string,
-    password?: string
-  ) => {
+  const signUp = async (email: string, fullName: string, phone: string, password?: string) => {
     if (isSupabaseConfigured && supabase && password) {
       const parts = fullName.trim().split(' ');
       const firstName = parts[0] || fullName;
@@ -169,7 +167,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
             first_name: firstName,
             last_name: lastName,
             phone: phone.trim(),
-            role: 'customer',
+            role: 'user',
           },
         },
       });
@@ -192,7 +190,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider
       value={{
         user,
-        role: user?.role || 'customer',
+        role: user?.role || 'user',
         isAuthenticated: Boolean(user),
         login,
         signUp,

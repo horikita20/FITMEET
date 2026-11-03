@@ -1,5 +1,17 @@
 import React, { useState, useEffect } from 'react';
-import { Shield, Users, Calendar, CreditCard, Building2, Check, X, FileText, Settings, RefreshCw, AlertCircle } from 'lucide-react';
+import {
+  Shield,
+  Users,
+  Calendar,
+  CreditCard,
+  Building2,
+  Check,
+  X,
+  FileText,
+  Settings,
+  RefreshCw,
+  AlertCircle,
+} from 'lucide-react';
 import { SiteSettings, FitnessEvent, Organization } from '../../types';
 import { fetchAdminOverview, reviewOrganizerApp, updateSiteSettings } from '../../lib/api';
 
@@ -18,7 +30,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
   onSettingsUpdated,
   onRefreshData,
 }) => {
-  const [activeTab, setActiveTab] = useState<'applications' | 'cms' | 'events' | 'logs'>('applications');
+  const [activeTab, setActiveTab] = useState<'applications' | 'cms' | 'events' | 'logs'>(
+    'applications'
+  );
   const [adminData, setAdminData] = useState<any>(null);
   const [loading, setLoading] = useState(false);
   const [saveSuccess, setSaveSuccess] = useState(false);
@@ -90,10 +104,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               <span>Platform Owner Console</span>
             </div>
             <h1 className="font-head font-bold text-3xl uppercase text-white">
-              FitMeet Super-Admin Dashboard
+              FitMeet Admin Dashboard
             </h1>
             <p className="text-xs text-[#b4b0aa] mt-1">
-              Review organizer applications, moderate events, adjust CMS settings, and audit transactions.
+              Review organizer applications, moderate events, adjust CMS settings, and audit
+              transactions.
             </p>
           </div>
 
@@ -199,7 +214,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               Pending Organizer Verification Applications
             </h2>
 
-            {(!adminData?.pendingApplications || adminData.pendingApplications.length === 0) ? (
+            {!adminData?.pendingApplications || adminData.pendingApplications.length === 0 ? (
               <div className="text-center py-12 text-[#b4b0aa]">
                 <p className="text-sm">No pending organizer applications in the queue.</p>
               </div>
@@ -259,7 +274,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({
               Configure Homepage Content & Settings
             </h2>
             <p className="text-xs text-[#b4b0aa] mb-6">
-              Update client copy, contact phone, accent color, and branding in real-time without modifying code.
+              Update client copy, contact phone, accent color, and branding in real-time without
+              modifying code.
             </p>
 
             {saveSuccess && (

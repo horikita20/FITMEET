@@ -1,5 +1,15 @@
 import React from 'react';
-import { ArrowRight, ShieldCheck, QrCode, Users, Sparkles, CheckCircle2, Clock, MapPin, Calendar } from 'lucide-react';
+import {
+  ArrowRight,
+  ShieldCheck,
+  QrCode,
+  Users,
+  Sparkles,
+  CheckCircle2,
+  Clock,
+  MapPin,
+  Calendar,
+} from 'lucide-react';
 
 interface FinalCtaProps {
   onRegisterClick: () => void;
@@ -50,7 +60,9 @@ export const FinalCta: React.FC<FinalCtaProps> = ({
 
               {/* Subheadline / Value Proposition */}
               <p className="text-sm sm:text-base text-slate-600 dark:text-neutral-300 max-w-xl leading-relaxed">
-                Join Patna’s fastest-growing weekend fitness movement. Whether you are training for your first 5K or just want an energizing Sunday morning with genuine people, FitMeet is completely free and welcoming to all fitness levels.
+                Join Patna’s fastest-growing weekend fitness movement. Whether you are training for
+                your first 5K or just want an energizing Sunday morning with genuine people, FitMeet
+                is completely free and welcoming to all fitness levels.
               </p>
 
               {/* 3 Trust Pillars */}
@@ -58,24 +70,36 @@ export const FinalCta: React.FC<FinalCtaProps> = ({
                 <div className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-neutral-200 bg-white dark:bg-[#0a0a0c]/80 border border-slate-200 dark:border-[#1f2127] rounded-lg px-3.5 py-3 shadow-sm">
                   <ShieldCheck className="h-4 w-4 text-[#FC5300] shrink-0" />
                   <div>
-                    <span className="font-semibold block text-slate-900 dark:text-white">100% Free RSVP</span>
-                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">Zero hidden costs</span>
+                    <span className="font-semibold block text-slate-900 dark:text-white">
+                      100% Free RSVP
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">
+                      Zero hidden costs
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-neutral-200 bg-white dark:bg-[#0a0a0c]/80 border border-slate-200 dark:border-[#1f2127] rounded-lg px-3.5 py-3 shadow-sm">
                   <QrCode className="h-4 w-4 text-[#FC5300] shrink-0" />
                   <div>
-                    <span className="font-semibold block text-slate-900 dark:text-white">Instant Pass</span>
-                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">QR entry on phone</span>
+                    <span className="font-semibold block text-slate-900 dark:text-white">
+                      Instant Pass
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">
+                      QR entry on phone
+                    </span>
                   </div>
                 </div>
 
                 <div className="flex items-center gap-2.5 text-xs text-slate-800 dark:text-neutral-200 bg-white dark:bg-[#0a0a0c]/80 border border-slate-200 dark:border-[#1f2127] rounded-lg px-3.5 py-3 shadow-sm">
                   <Users className="h-4 w-4 text-[#FC5300] shrink-0" />
                   <div>
-                    <span className="font-semibold block text-slate-900 dark:text-white">All Fitness Levels</span>
-                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">Runners & walkers</span>
+                    <span className="font-semibold block text-slate-900 dark:text-white">
+                      All Fitness Levels
+                    </span>
+                    <span className="text-[11px] text-slate-500 dark:text-neutral-400">
+                      Runners & walkers
+                    </span>
                   </div>
                 </div>
               </div>

@@ -20,7 +20,10 @@ export const ThemeProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return stored;
       }
       // Check system preference if no stored preference
-      if (typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: light)').matches) {
+      if (
+        typeof window !== 'undefined' &&
+        window.matchMedia('(prefers-color-scheme: light)').matches
+      ) {
         return 'light';
       }
     } catch {

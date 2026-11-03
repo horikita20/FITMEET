@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { Calendar, Clock, MapPin, Search, Filter, ArrowRight, Flame, Users, CheckCircle2 } from 'lucide-react';
+import {
+  Calendar,
+  Clock,
+  MapPin,
+  Search,
+  Filter,
+  ArrowRight,
+  Flame,
+  Users,
+  CheckCircle2,
+} from 'lucide-react';
 import { FitnessEvent, EventCategory } from '../../types';
 import { EventCard } from './EventCard';
 
@@ -32,7 +42,8 @@ export const EventDiscovery: React.FC<EventDiscoveryProps> = ({
   ];
 
   const filteredEvents = events.filter((ev) => {
-    const matchCity = selectedCity === 'all' || ev.city.toLowerCase() === selectedCity.toLowerCase();
+    const matchCity =
+      selectedCity === 'all' || ev.city.toLowerCase() === selectedCity.toLowerCase();
     const matchCategory = selectedCategory === 'all' || ev.category === selectedCategory;
     const matchPrice =
       selectedPrice === 'all' ||
@@ -62,8 +73,9 @@ export const EventDiscovery: React.FC<EventDiscoveryProps> = ({
             Discover Fitness Events & Co-Hosted Meetups
           </h1>
           <p className="mt-2 text-sm text-slate-600 dark:text-[#b4b0aa] max-w-2xl">
-            Explore community runs, gym throwdowns, outdoor mobility sessions, and multi-organization
-            fitness meetups with real-time slot tracking and instant pass confirmation.
+            Explore community runs, gym throwdowns, outdoor mobility sessions, and
+            multi-organization fitness meetups with real-time slot tracking and instant pass
+            confirmation.
           </p>
         </div>
 
@@ -84,7 +96,9 @@ export const EventDiscovery: React.FC<EventDiscoveryProps> = ({
 
             {/* City Selector */}
             <div className="md:col-span-4 flex items-center gap-2">
-              <span className="text-xs text-slate-500 dark:text-[#b4b0aa] uppercase font-bold shrink-0">City:</span>
+              <span className="text-xs text-slate-500 dark:text-[#b4b0aa] uppercase font-bold shrink-0">
+                City:
+              </span>
               <div className="flex flex-wrap gap-1 w-full">
                 {['all', 'Patna', 'Mumbai', 'Bengaluru'].map((city) => (
                   <button
@@ -104,7 +118,9 @@ export const EventDiscovery: React.FC<EventDiscoveryProps> = ({
 
             {/* Price Filter */}
             <div className="md:col-span-3 flex items-center gap-2 justify-end">
-              <span className="text-xs text-slate-500 dark:text-[#b4b0aa] uppercase font-bold shrink-0">Fee:</span>
+              <span className="text-xs text-slate-500 dark:text-[#b4b0aa] uppercase font-bold shrink-0">
+                Fee:
+              </span>
               <div className="flex gap-1">
                 {(['all', 'free', 'paid'] as const).map((p) => (
                   <button

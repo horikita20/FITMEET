@@ -10,6 +10,7 @@ import {
   AlertOctagon,
   Sparkles,
 } from 'lucide-react';
+import { getPublicAssetUrl } from '../../lib/brandAssets';
 
 export type LegalTab = 'terms' | 'privacy' | 'refund' | 'all';
 
@@ -29,7 +30,7 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
 
   if (!type) return null;
 
-  const pdfUrl = '/assets/aistudio/FitMeet_Policies_a6e4b93c.pdf';
+  const pdfUrl = getPublicAssetUrl('assets/aistudio/FitMeet_Policies_a6e4b93c.pdf');
 
   return (
     <div className="fixed inset-0 z-[60] flex items-center justify-center p-3 sm:p-4 bg-black/85 backdrop-blur-md overflow-y-auto">
@@ -135,34 +136,35 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 <span className="font-bold text-[#FC5300] uppercase text-[11px] tracking-wide block mb-0.5">
                   In short:
                 </span>
-                <p className="text-sm">Come if you can make it, train at your own pace, and play fair.</p>
+                <p className="text-sm">
+                  Come if you can make it, train at your own pace, and play fair.
+                </p>
               </div>
 
               <div className="space-y-4 pt-2 text-[#b4b0aa] leading-relaxed">
                 <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    1. Using FitMeet
-                  </h4>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">1. Using FitMeet</h4>
                   <p>
-                    By using this website or joining a meet, you agree to these terms. If you don't agree, please don't use FitMeet.
+                    By using this website or joining a meet, you agree to these terms. If you don't
+                    agree, please don't use FitMeet.
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    2. Who can join
-                  </h4>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">2. Who can join</h4>
                   <p>
-                    Every meet happens in person at a gym or outdoor spot in Patna. Register only if you can be there on the day. Your spot is personal and can't be passed on to someone else.
+                    Every meet happens in person at a gym or outdoor spot in Patna. Register only if
+                    you can be there on the day. Your spot is personal and can't be passed on to
+                    someone else.
                   </p>
                 </div>
 
                 <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    3. Your safety
-                  </h4>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">3. Your safety</h4>
                   <p>
-                    Fitness activities come with some risk. By joining, you confirm you're fit enough to take part. FitMeet, its organizers and its collaborators are not responsible for any injury, loss or damage during a meet.
+                    Fitness activities come with some risk. By joining, you confirm you're fit
+                    enough to take part. FitMeet, its organizers and its collaborators are not
+                    responsible for any injury, loss or damage during a meet.
                   </p>
                 </div>
 
@@ -171,7 +173,9 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                     4. Registration and payment
                   </h4>
                   <p>
-                    Please fill in your details correctly. For paid meets, your spot is confirmed only once payment goes through. If you register but don't show up, no refund will be given. See our Refund Policy for details.
+                    Please fill in your details correctly. For paid meets, your spot is confirmed
+                    only once payment goes through. If you register but don't show up, no refund
+                    will be given. See our Refund Policy for details.
                   </p>
                 </div>
 
@@ -180,7 +184,8 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                     5. Photos and videos
                   </h4>
                   <p>
-                    We capture moments at every meet. By taking part, you allow FitMeet to use these photos and videos on our website and social media.
+                    We capture moments at every meet. By taking part, you allow FitMeet to use these
+                    photos and videos on our website and social media.
                   </p>
                 </div>
 
@@ -189,7 +194,8 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                     6. Updates to these terms
                   </h4>
                   <p>
-                    We may update these terms from time to time. Please check this page now and then.
+                    We may update these terms from time to time. Please check this page now and
+                    then.
                   </p>
                 </div>
               </div>
@@ -198,82 +204,16 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
 
           {/* TAB 2: PRIVACY POLICY */}
           {(activeTab === 'privacy' || activeTab === 'all') && (
-            <section className={`space-y-4 ${activeTab === 'all' ? 'pt-8 border-t border-[#25272c]' : ''}`}>
+            <section
+              className={`space-y-4 ${activeTab === 'all' ? 'pt-8 border-t border-[#25272c]' : ''}`}
+            >
               <div className="flex items-center gap-2 text-[#FC5300]">
                 <ShieldCheck className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Privacy & Protection</span>
-              </div>
-              <h3 className="font-head font-bold text-2xl uppercase text-white">
-                Privacy Policy
-              </h3>
-
-              {/* In short highlight box */}
-              <div className="p-3.5 rounded-xl bg-[#171920] border-l-4 border-[#FC5300] text-[#f5f2ee]">
-                <span className="font-bold text-[#FC5300] uppercase text-[11px] tracking-wide block mb-0.5">
-                  In short:
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Privacy & Protection
                 </span>
-                <p className="text-sm">We collect only what we need to run your meet, we keep it safe, and we never sell it.</p>
               </div>
-
-              <div className="space-y-4 pt-2 text-[#b4b0aa] leading-relaxed">
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    What we collect
-                  </h4>
-                  <p>
-                    When you join a meet or create a profile, we may ask for your name, email, phone number, age, gender and fitness level.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    Why we collect it
-                  </h4>
-                  <p>
-                    To confirm your spot, send you meet updates, keep our community safe, and make FitMeet better.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    How we protect it
-                  </h4>
-                  <p>
-                    Your data is protected with standard security measures. No website can promise 100% security, but we work to keep your information private and safe.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    Who else sees it
-                  </h4>
-                  <p>
-                    Payments are handled by Razorpay. It receives only the details needed to process your payment and cannot use them for anything else. We never sell your data.
-                  </p>
-                </div>
-
-                <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    Questions?
-                  </h4>
-                  <p>
-                    Reach us anytime through the contact section on our website.
-                  </p>
-                </div>
-              </div>
-            </section>
-          )}
-
-          {/* TAB 3: REFUND POLICY */}
-          {(activeTab === 'refund' || activeTab === 'all') && (
-            <section className={`space-y-4 ${activeTab === 'all' ? 'pt-8 border-t border-[#25272c]' : ''}`}>
-              <div className="flex items-center gap-2 text-[#FC5300]">
-                <RefreshCw className="h-5 w-5" />
-                <span className="text-xs font-bold uppercase tracking-wider">Payments & Refunds</span>
-              </div>
-              <h3 className="font-head font-bold text-2xl uppercase text-white">
-                Refund Policy
-              </h3>
+              <h3 className="font-head font-bold text-2xl uppercase text-white">Privacy Policy</h3>
 
               {/* In short highlight box */}
               <div className="p-3.5 rounded-xl bg-[#171920] border-l-4 border-[#FC5300] text-[#f5f2ee]">
@@ -281,7 +221,73 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                   In short:
                 </span>
                 <p className="text-sm">
-                  If we cancel or change a meet, you get your money back. If you can't make it, you don't. Once confirmed, registrations are non-refundable and can't be transferred.
+                  We collect only what we need to run your meet, we keep it safe, and we never sell
+                  it.
+                </p>
+              </div>
+
+              <div className="space-y-4 pt-2 text-[#b4b0aa] leading-relaxed">
+                <div>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">What we collect</h4>
+                  <p>
+                    When you join a meet or create a profile, we may ask for your name, email, phone
+                    number, age, gender and fitness level.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">Why we collect it</h4>
+                  <p>
+                    To confirm your spot, send you meet updates, keep our community safe, and make
+                    FitMeet better.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">How we protect it</h4>
+                  <p>
+                    Your data is protected with standard security measures. No website can promise
+                    100% security, but we work to keep your information private and safe.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">Who else sees it</h4>
+                  <p>
+                    Payments are handled by Razorpay. It receives only the details needed to process
+                    your payment and cannot use them for anything else. We never sell your data.
+                  </p>
+                </div>
+
+                <div>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">Questions?</h4>
+                  <p>Reach us anytime through the contact section on our website.</p>
+                </div>
+              </div>
+            </section>
+          )}
+
+          {/* TAB 3: REFUND POLICY */}
+          {(activeTab === 'refund' || activeTab === 'all') && (
+            <section
+              className={`space-y-4 ${activeTab === 'all' ? 'pt-8 border-t border-[#25272c]' : ''}`}
+            >
+              <div className="flex items-center gap-2 text-[#FC5300]">
+                <RefreshCw className="h-5 w-5" />
+                <span className="text-xs font-bold uppercase tracking-wider">
+                  Payments & Refunds
+                </span>
+              </div>
+              <h3 className="font-head font-bold text-2xl uppercase text-white">Refund Policy</h3>
+
+              {/* In short highlight box */}
+              <div className="p-3.5 rounded-xl bg-[#171920] border-l-4 border-[#FC5300] text-[#f5f2ee]">
+                <span className="font-bold text-[#FC5300] uppercase text-[11px] tracking-wide block mb-0.5">
+                  In short:
+                </span>
+                <p className="text-sm">
+                  If we cancel or change a meet, you get your money back. If you can't make it, you
+                  don't. Once confirmed, registrations are non-refundable and can't be transferred.
                 </p>
               </div>
 
@@ -312,11 +318,10 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
                 </div>
 
                 <div>
-                  <h4 className="text-white font-bold text-sm uppercase mb-1">
-                    How refunds work
-                  </h4>
+                  <h4 className="text-white font-bold text-sm uppercase mb-1">How refunds work</h4>
                   <p>
-                    Approved refunds reach your account within 7–14 working days. By registering for a meet, you agree to this policy.
+                    Approved refunds reach your account within 7–14 working days. By registering for
+                    a meet, you agree to this policy.
                   </p>
                 </div>
               </div>
@@ -328,7 +333,8 @@ export const LegalModal: React.FC<LegalModalProps> = ({ type, onClose }) => {
             <div className="flex items-center gap-2.5">
               <FileText className="h-4 w-4 text-[#FC5300] shrink-0" />
               <span>
-                Original document uploaded: <strong className="text-white">FitMeet_Policies_a6e4b93c.pdf</strong>
+                Original document uploaded:{' '}
+                <strong className="text-white">FitMeet_Policies_a6e4b93c.pdf</strong>
               </span>
             </div>
             <a

@@ -10,10 +10,8 @@ import { supabase } from './supabase';
 const API_BASE = '/api';
 
 async function sessionHeaders(): Promise<Record<string, string>> {
-  const { data } = await supabase?.auth.getSession() ?? { data: { session: null } };
-  return data.session?.access_token
-    ? { Authorization: `Bearer ${data.session.access_token}` }
-    : {};
+  const { data } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
+  return data.session?.access_token ? { Authorization: `Bearer ${data.session.access_token}` } : {};
 }
 
 export async function fetchSiteSettings(): Promise<SiteSettings> {
@@ -46,7 +44,7 @@ export async function fetchSiteSettings(): Promise<SiteSettings> {
 export async function updateSiteSettings(settings: Partial<SiteSettings>): Promise<boolean> {
   const res = await fetch(`${API_BASE}/settings`, {
     method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
+    headers: { 'Content-Type': 'application/json', ...(await sessionHeaders()) },
     body: JSON.stringify(settings),
   });
   return res.ok;
@@ -87,7 +85,7 @@ export async function fetchEventById(id: string): Promise<FitnessEvent | null> {
 }
 
 export async function createEvent(eventData: Partial<FitnessEvent>): Promise<FitnessEvent> {
-  const { data: sessionData } = await supabase?.auth.getSession() ?? { data: { session: null } };
+  const { data: sessionData } = (await supabase?.auth.getSession()) ?? { data: { session: null } };
   const res = await fetch(`${API_BASE}/events`, {
     method: 'POST',
     headers: {
@@ -181,6 +179,25 @@ export async function submitCollaborationEnquiry(data: {
   if (!res.ok) {
     const result = await res.json();
     throw new Error(result.error || 'Unable to submit collaboration enquiry.');
+  }
+  return await res.json();
+}
+
+export async function submitContactEnquiry(data: {
+  name: string;
+  email: string;
+  phone: string;
+  interest: string;
+  message: string;
+}) {
+  const res = await fetch(`${API_BASE}/contact-enquiries`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(data),
+  });
+  if (!res.ok) {
+    const result = await res.json();
+    throw new Error(result.error || 'Unable to send contact enquiry.');
   }
   return await res.json();
 }
@@ -284,7 +301,11 @@ export async function fetchAdminOverview() {
   return await res.json();
 }
 
-export async function reviewOrganizerApp(id: string, decision: 'approved' | 'rejected', notes?: string) {
+export async function reviewOrganizerApp(
+  id: string,
+  decision: 'approved' | 'rejected',
+  notes?: string
+) {
   const res = await fetch(`${API_BASE}/admin/applications/${id}/review`, {
     method: 'POST',
     headers: { 'Content-Type': 'application/json' },

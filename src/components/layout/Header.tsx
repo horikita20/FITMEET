@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Menu, X, ArrowRight, Briefcase, Ticket, LogOut, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { useTheme } from '../../context/ThemeContext';
+import { FITMEET_EMBLEM_URL, FITMEET_LOGO_URL } from '../../lib/brandAssets';
 
 interface HeaderProps {
   currentView: string;
@@ -63,7 +64,7 @@ export const Header: React.FC<HeaderProps> = ({
           aria-label="FitMeet Patna"
         >
           <img
-            src="/assets/images/fitmeet_logo_master.png"
+            src={FITMEET_LOGO_URL}
             alt="FitMeet Patna"
             className="h-7 sm:h-9 w-auto object-contain"
           />
@@ -105,7 +106,7 @@ export const Header: React.FC<HeaderProps> = ({
                 {/* Upper right avatar: FitMeet Emblem logo only */}
                 <div className="h-8 w-8 rounded-full overflow-hidden bg-black border border-[#FC5300]/50 flex items-center justify-center shrink-0">
                   <img
-                    src="/assets/aistudio/FitMeet_Emblem_original_1_.jpg_3ce53c29.jpeg"
+                    src={FITMEET_EMBLEM_URL}
                     alt="FitMeet Member Emblem"
                     className="h-full w-full object-cover"
                   />
@@ -117,7 +118,9 @@ export const Header: React.FC<HeaderProps> = ({
                 <div className="absolute right-0 mt-2 w-56 rounded-xl border border-slate-200 dark:border-[#25272c] bg-white dark:bg-[#111215] shadow-2xl py-2 z-50 text-xs text-slate-800 dark:text-[#f5f2ee]">
                   <div className="px-4 py-2 border-b border-slate-200 dark:border-[#25272c]">
                     <p className="font-semibold text-slate-900 dark:text-white">{user.fullName}</p>
-                    <p className="text-slate-500 dark:text-neutral-400 text-[11px] truncate">{user.email}</p>
+                    <p className="text-slate-500 dark:text-neutral-400 text-[11px] truncate">
+                      {user.email}
+                    </p>
                     <span className="inline-block mt-1 px-2 py-0.5 rounded text-[10px] bg-[#FC5300]/20 text-[#FC5300] font-mono uppercase font-bold">
                       {user.role}
                     </span>
@@ -131,13 +134,13 @@ export const Header: React.FC<HeaderProps> = ({
                     <span>My Registrations & Passes</span>
                   </button>
 
-                  {user.role === 'organizer' && (
+                  {user.role === 'admin' && (
                     <button
                       onClick={() => handleNav('organizer-dashboard')}
                       className="w-full flex items-center gap-2.5 px-4 py-2.5 hover:bg-slate-100 dark:hover:bg-[#16181d] text-left transition-colors cursor-pointer text-[#ff7a2e]"
                     >
                       <Briefcase className="h-4 w-4" />
-                      <span>Organizer Portal</span>
+                      <span>Event Management</span>
                     </button>
                   )}
 
@@ -215,7 +218,9 @@ export const Header: React.FC<HeaderProps> = ({
                 ) : (
                   <Moon className="h-4 w-4 text-slate-700" />
                 )}
-                <span>Current Theme: <strong className="capitalize">{theme}</strong></span>
+                <span>
+                  Current Theme: <strong className="capitalize">{theme}</strong>
+                </span>
               </span>
               <span className="text-[11px] font-semibold text-[#FC5300]">
                 Switch to {theme === 'dark' ? 'Light' : 'Dark'}
@@ -245,12 +250,12 @@ export const Header: React.FC<HeaderProps> = ({
                   <span>My Registrations</span>
                   <Ticket className="h-4 w-4" />
                 </button>
-                {user.role === 'organizer' && (
+                {user.role === 'admin' && (
                   <button
                     onClick={() => handleNav('organizer-dashboard')}
                     className="py-2 text-left text-sm font-semibold text-[#ff7a2e] flex items-center justify-between border-b border-slate-100 dark:border-[#1b1c20]"
                   >
-                    <span>Organizer Dashboard</span>
+                    <span>Event Management</span>
                     <Briefcase className="h-4 w-4" />
                   </button>
                 )}

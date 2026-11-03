@@ -1,12 +1,11 @@
-import React, { useState, useEffect, useRef, useCallback } from 'react';
+import React, { useState, useRef, useCallback } from 'react';
 import { ArrowRight, Bell, Play, Calendar, MapPin, Users, MessageCircle } from 'lucide-react';
 import { SiteSettings } from '../../types';
 import { FitMeetVideoModal } from './FitMeetVideoModal';
-import { HeroActivityScene } from './HeroActivityScene';
 import { FitMeetLogo } from '../common/FitMeetLogo';
+import { HeroActivityScene } from './HeroActivityScene';
 
 const WHATSAPP_CHANNEL_URL = 'https://whatsapp.com/channel/0029VbE5yl8Likg2G1r0I83R';
-const ROTATING_WORDS = ['CREW.', 'CIRCLE.', 'SUNDAY.', 'GAME.'];
 
 interface HeroProps {
   settings: SiteSettings;
@@ -22,23 +21,8 @@ export const Hero: React.FC<HeroProps> = ({
   onCollaborateClick,
 }) => {
   const [videoModalOpen, setVideoModalOpen] = useState(false);
-  const [currentWordIndex, setCurrentWordIndex] = useState(0);
   const heroRef = useRef<HTMLElement>(null);
   const stageRef = useRef<HTMLDivElement>(null);
-
-  // Rotating headline word every 2.2 seconds matching the live animation
-  useEffect(() => {
-    const prefersReducedMotion =
-      typeof window !== 'undefined' &&
-      window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (prefersReducedMotion) return;
-
-    const interval = setInterval(() => {
-      setCurrentWordIndex((prev) => (prev + 1) % ROTATING_WORDS.length);
-    }, 2200);
-
-    return () => clearInterval(interval);
-  }, []);
 
   // Confetti burst generator
   const triggerConfetti = useCallback((n: number = 22) => {
@@ -129,9 +113,6 @@ export const Hero: React.FC<HeroProps> = ({
       className="hero relative isolate min-h-[640px] lg:min-h-[760px] xl:min-h-[820px] flex items-center border-b border-[#16171a] overflow-hidden bg-[#0b0b0d]"
       aria-labelledby="hero-title"
     >
-      {/* Live Animated Workout Scene */}
-      <HeroActivityScene onCoachTap={() => triggerConfetti(24)} />
-
       {/* Atmospheric Radial Glow & Shading Overlays */}
       <div
         className="hero-shade absolute inset-0 z-[1] pointer-events-none"
@@ -165,19 +146,8 @@ export const Hero: React.FC<HeroProps> = ({
             id="hero-title"
             className="font-head font-black text-4xl sm:text-6xl lg:text-[4.25rem] xl:text-[4.75rem] uppercase leading-[0.92] tracking-tight mt-1 text-white select-none"
           >
-            PUSH YOUR LIMITS
-            <span className="block mt-1">EXPAND YOUR</span>
-            <span className="text-[#ff5a1f] block mt-1">
-              <span className="rot inline-block relative text-[#ff5a1f]">
-                <span
-                  key={currentWordIndex}
-                  className="inline-block"
-                  style={{ animation: 'rotIn 0.5s cubic-bezier(0.2, 0.8, 0.2, 1)' }}
-                >
-                  {ROTATING_WORDS[currentWordIndex]}
-                </span>
-              </span>
-            </span>
+            CHALLENGE YOURSELF.
+            <span className="text-[#ff5a1f] block mt-1">EXPAND YOUR CIRCLE.</span>
           </h1>
 
           {/* Action CTAs: Matches Image 2 */}
@@ -235,24 +205,36 @@ export const Hero: React.FC<HeroProps> = ({
             <div className="flex items-start gap-3">
               <Calendar className="h-5 w-5 text-[#ff5a1f] shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-xs uppercase font-bold tracking-wider text-white">EVERY SUNDAY</strong>
-                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">Time shared before each meet</span>
+                <strong className="block text-xs uppercase font-bold tracking-wider text-white">
+                  EVERY SUNDAY
+                </strong>
+                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">
+                  Time shared before each meet
+                </span>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <MapPin className="h-5 w-5 text-[#ff5a1f] shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-xs uppercase font-bold tracking-wider text-white">PATNA, BIHAR</strong>
-                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">New gym or outdoor spot every meet</span>
+                <strong className="block text-xs uppercase font-bold tracking-wider text-white">
+                  PATNA, BIHAR
+                </strong>
+                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">
+                  New gym or outdoor spot every meet
+                </span>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
               <Users className="h-5 w-5 text-[#ff5a1f] shrink-0 mt-0.5" />
               <div>
-                <strong className="block text-xs uppercase font-bold tracking-wider text-white">ALL FITNESS LEVELS</strong>
-                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">Beginner to advanced</span>
+                <strong className="block text-xs uppercase font-bold tracking-wider text-white">
+                  ALL FITNESS LEVELS
+                </strong>
+                <span className="block text-[11px] text-[#b4b0aa] mt-0.5">
+                  Beginner to advanced
+                </span>
               </div>
             </div>
           </div>
@@ -264,13 +246,14 @@ export const Hero: React.FC<HeroProps> = ({
           onPointerMove={handlePointerMove}
           onPointerLeave={handlePointerLeave}
           onClick={() => triggerConfetti(26)}
-          title="Click to cheer on the crew!"
         >
           <div
             ref={stageRef}
             className="hero-stage-inner relative w-full h-full flex items-center justify-center pointer-events-none"
             style={{ transformStyle: 'preserve-3d', transition: 'transform 0.25s ease-out' }}
-          />
+          >
+            <HeroActivityScene displayInStage onCoachTap={() => triggerConfetti(24)} />
+          </div>
         </div>
       </div>
 

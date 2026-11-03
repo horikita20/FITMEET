@@ -1,14 +1,14 @@
-@import "tailwindcss";
+@import 'tailwindcss';
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-logo: "Montserrat", "Arial Black", sans-serif;
-  --font-head: "Barlow Condensed", "Arial Narrow", sans-serif;
-  --font-body: "Barlow", system-ui, sans-serif;
-  --font-mono: "JetBrains Mono", monospace;
-  
-  --color-accent: #FC5300;
+  --font-logo: 'Montserrat', 'Arial Black', sans-serif;
+  --font-head: 'Barlow Condensed', 'Arial Narrow', sans-serif;
+  --font-body: 'Barlow', system-ui, sans-serif;
+  --font-mono: 'JetBrains Mono', monospace;
+
+  --color-accent: #fc5300;
   --color-accent-hot: #ff7a2e;
 }
 
@@ -22,12 +22,14 @@
   --fg: #f5f2ee;
   --fg-secondary: #e4e1dc;
   --muted: #b4b0aa;
-  --accent: #FC5300;
+  --accent: #fc5300;
   --accent-hot: #ff7a2e;
   color-scheme: dark;
 }
 
-:root.light, [data-theme="light"], .light {
+:root.light,
+[data-theme='light'],
+.light {
   --bg: #f8f9fa;
   --bg-subtle: #f1f3f6;
   --panel: #ffffff;
@@ -37,7 +39,7 @@
   --fg: #0f172a;
   --fg-secondary: #334155;
   --muted: #64748b;
-  --accent: #FC5300;
+  --accent: #fc5300;
   --accent-hot: #ff7a2e;
   color-scheme: light;
 }
@@ -48,7 +50,9 @@ body {
   color: var(--fg);
   overflow-x: hidden;
   line-height: 1.5;
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition:
+    background-color 0.2s ease,
+    color 0.2s ease;
 }
 
 .font-logo {
@@ -76,7 +80,7 @@ body {
   border-radius: 3px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #FC5300;
+  background: #fc5300;
 }
 
 /* ==========================================================================
@@ -97,14 +101,24 @@ body {
 }
 
 @keyframes hop {
-  0% { transform: translateY(0) scale(1); }
-  35% { transform: translateY(-14%) scale(1.06, 0.94); }
-  70% { transform: translateY(2%) scale(0.96, 1.04); }
-  100% { transform: none; }
+  0% {
+    transform: translateY(0) scale(1);
+  }
+  35% {
+    transform: translateY(-14%) scale(1.06, 0.94);
+  }
+  70% {
+    transform: translateY(2%) scale(0.96, 1.04);
+  }
+  100% {
+    transform: none;
+  }
 }
 
 @keyframes fmBlink {
-  50% { opacity: 0.2; }
+  50% {
+    opacity: 0.2;
+  }
 }
 
 @keyframes burst {

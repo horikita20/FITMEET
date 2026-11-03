@@ -4,7 +4,14 @@ import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import dotenv from 'dotenv';
 import { createClient, SupabaseClient } from '@supabase/supabase-js';
-import { FitnessEvent, Organization, EventRegistration, CollaborationRequest, SiteSettings, AuditLog } from './src/types/index';
+import {
+  FitnessEvent,
+  Organization,
+  EventRegistration,
+  CollaborationRequest,
+  SiteSettings,
+  AuditLog,
+} from './src/types/index';
 
 dotenv.config();
 
@@ -13,6 +20,7 @@ const __dirname = path.dirname(__filename);
 
 const app = express();
 const PORT = process.env.PORT || 3000;
+const FITMEET_ADMIN_USER_ID = 'b00526d3-4760-4426-997a-d6792338619b';
 const supabaseUrl = process.env.SUPABASE_URL || process.env.VITE_SUPABASE_URL || '';
 const supabaseServiceRoleKey = process.env.SUPABASE_SERVICE_ROLE_KEY || '';
 const supabaseAdmin: SupabaseClient | null =
@@ -22,14 +30,17 @@ const supabaseAdmin: SupabaseClient | null =
       })
     : null;
 
-const requireRole = (allowedRoles: string[]) =>
-  async (req: Request, res: Response, next: NextFunction) => {
+const requireRole =
+  (allowedRoles: string[]) => async (req: Request, res: Response, next: NextFunction) => {
     if (!supabaseAdmin) {
-      return res.status(503).json({ error: 'Secure account services require server-side Supabase credentials.' });
+      return res
+        .status(503)
+        .json({ error: 'Secure account services require server-side Supabase credentials.' });
     }
 
     const tokenMatch = (req.header('authorization') || '').match(/^Bearer\s+(.+)$/i);
-    if (!tokenMatch) return res.status(401).json({ error: 'A valid signed-in session is required.' });
+    if (!tokenMatch)
+      return res.status(401).json({ error: 'A valid signed-in session is required.' });
 
     try {
       const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(tokenMatch[1]);
@@ -46,12 +57,16 @@ const requireRole = (allowedRoles: string[]) =>
         console.error('Role lookup failed:', profileError.message);
         return res.status(503).json({ error: 'Unable to verify account permissions.' });
       }
-      if (!profile || profile.is_active !== true || !allowedRoles.includes(profile.role)) {
-        return res.status(403).json({ error: 'Your account is not authorized to perform this action.' });
+      if (
+        !profile ||
+        profile.is_active !== true ||
+        !allowedRoles.includes(profile.role) ||
+        (allowedRoles.includes('admin') && authData.user.id !== FITMEET_ADMIN_USER_ID)
+      ) {
+        return res
+          .status(403)
+          .json({ error: 'Your account is not authorized to perform this action.' });
       }
-      const requestWithIdentity = req as Request & { verifiedUserId?: string; verifiedRole?: string };
-      requestWithIdentity.verifiedUserId = authData.user.id;
-      requestWithIdentity.verifiedRole = profile.role;
       next();
     } catch (error) {
       console.error('Authorization failed:', error);
@@ -59,8 +74,7 @@ const requireRole = (allowedRoles: string[]) =>
     }
   };
 
-const requireAdmin = requireRole(['super_admin']);
-const requireEventManager = requireRole(['organizer', 'super_admin']);
+const requireAdmin = requireRole(['admin']);
 
 const databaseEventToEvent = (row: any): FitnessEvent => ({
   id: row.id,
@@ -129,12 +143,60 @@ const siteSettings: SiteSettings = {
   customDomain: process.env.CLIENT_DOMAIN || 'fitmeet.in',
 };
 
+const SITE_SETTINGS_KEY = 'public';
+const siteSettingFields = Object.keys(siteSettings) as Array<keyof SiteSettings>;
+
+const parseSiteSettingsPatch = (body: unknown): Partial<SiteSettings> => {
+  if (!body || typeof body !== 'object' || Array.isArray(body)) return {};
+  const patch: Partial<SiteSettings> = {};
+  for (const field of siteSettingFields) {
+    const value = (body as Record<string, unknown>)[field];
+    if (typeof value === 'string') patch[field] = value;
+  }
+  return patch;
+};
+
+const saveSiteSettings = async (patch: Partial<SiteSettings>) => {
+  const nextSettings = { ...siteSettings, ...patch };
+  if (supabaseAdmin) {
+    const { error } = await supabaseAdmin.from('site_settings').upsert(
+      {
+        key: SITE_SETTINGS_KEY,
+        value: nextSettings,
+        updated_at: new Date().toISOString(),
+      },
+      { onConflict: 'key' }
+    );
+    if (error) return { error };
+  }
+  Object.assign(siteSettings, nextSettings);
+  return { settings: nextSettings };
+};
+
+const loadSiteSettings = async () => {
+  if (!supabaseAdmin) return { settings: siteSettings };
+  const { data, error } = await supabaseAdmin
+    .from('site_settings')
+    .select('value')
+    .eq('key', SITE_SETTINGS_KEY)
+    .maybeSingle();
+  if (error) return { error };
+  const storedValue = data?.value;
+  const storedSettings =
+    storedValue && typeof storedValue === 'object' && !Array.isArray(storedValue)
+      ? parseSiteSettingsPatch(storedValue)
+      : {};
+  return {
+    settings: { ...siteSettings, ...storedSettings },
+  };
+};
+
 const organizations: Organization[] = [
   {
     id: 'org-01',
     name: 'FitMeet Patna Crew',
     type: 'fitness_community',
-    description: "The founding running and functional fitness crew of Patna. 500+ runners strong.",
+    description: 'The founding running and functional fitness crew of Patna. 500+ runners strong.',
     city: 'Patna',
     address: 'Ganga Pathway, Marine Drive, Patna',
     contactEmail: 'crew@fitmeet.in',
@@ -342,7 +404,8 @@ let collaborationRequests: CollaborationRequest[] = [
     eventId: 'ev-02',
     eventTitle: 'IronCore Barbells & Calisthenics Throwdown',
     proposedRole: 'Lead Running & Pacing Cohort',
-    message: 'We would love the FitMeet crew to lead the 3K warmup jog and community games before the barbell circuit.',
+    message:
+      'We would love the FitMeet crew to lead the 3K warmup jog and community games before the barbell circuit.',
     status: 'accepted',
     createdAt: new Date(Date.now() - 86400000 * 2).toISOString(),
   },
@@ -356,7 +419,8 @@ let collaborationRequests: CollaborationRequest[] = [
     eventId: 'ev-01',
     eventTitle: 'FitMeet Sunday Run & Community Workout',
     proposedRole: 'Hydration & Nutrition Sponsor',
-    message: 'We would like to supply free electrolyte recovery bottles and testing kits for all 150 participants.',
+    message:
+      'We would like to supply free electrolyte recovery bottles and testing kits for all 150 participants.',
     status: 'accepted',
     createdAt: new Date(Date.now() - 86400000).toISOString(),
   },
@@ -403,20 +467,29 @@ app.get('/api/health', (_req: Request, res: Response) => {
 });
 
 // 2. Settings (CMS)
-app.get('/api/settings', (_req: Request, res: Response) => {
-  res.json(siteSettings);
+app.get('/api/settings', async (_req: Request, res: Response) => {
+  const { settings, error } = await loadSiteSettings();
+  if (error) {
+    console.error('Site settings query failed:', error.message);
+    return res.status(503).json({ error: 'Unable to load site settings.' });
+  }
+  res.json(settings);
 });
 
-app.post('/api/settings', requireAdmin, (req: Request, res: Response) => {
-  Object.assign(siteSettings, req.body);
+app.post('/api/settings', requireAdmin, async (req: Request, res: Response) => {
+  const { settings, error } = await saveSiteSettings(parseSiteSettingsPatch(req.body));
+  if (error) {
+    console.error('Site settings update failed:', error.message);
+    return res.status(500).json({ error: 'Unable to save site settings.' });
+  }
   auditLogs.unshift({
     id: `log-${Date.now()}`,
     timestamp: new Date().toISOString(),
-    actorEmail: req.body.adminEmail || 'admin@fitmeet.in',
+    actorEmail: 'admin@fitmeet.in',
     action: 'UPDATE_SITE_SETTINGS',
     details: 'CMS settings updated by platform owner.',
   });
-  res.json({ success: true, settings: siteSettings });
+  res.json({ success: true, settings });
 });
 
 // 3. Events List & Filtering
@@ -492,25 +565,11 @@ app.get('/api/events/:id', async (req: Request, res: Response) => {
 });
 
 // 5. Create Event (Organizer / Admin)
-app.post('/api/events', requireEventManager, async (req: Request, res: Response) => {
+app.post('/api/events', requireAdmin, async (req: Request, res: Response) => {
   const body = req.body;
-  const identity = req as Request & { verifiedUserId?: string; verifiedRole?: string };
   if (!body.title || !body.date || !body.startTime || !body.venue || !body.registrationCapacity) {
     return res.status(400).json({ error: 'Missing required event fields' });
   }
-  if (identity.verifiedRole === 'organizer') {
-    const { data: organization, error } = await supabaseAdmin!
-      .from('organizations')
-      .select('id')
-      .eq('id', body.primaryOrganizerId)
-      .eq('owner_user_id', identity.verifiedUserId)
-      .eq('status', 'approved')
-      .maybeSingle();
-    if (error || !organization) {
-      return res.status(403).json({ error: 'An approved organization owned by your account is required.' });
-    }
-  }
-
   if (supabaseAdmin) {
     const eventData = normalizeEventPayload(body);
     if (
@@ -518,7 +577,9 @@ app.post('/api/events', requireEventManager, async (req: Request, res: Response)
       eventData.registration_capacity < 1 ||
       !Number.isInteger(eventData.price_in_paise) ||
       eventData.price_in_paise < 0 ||
-      !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(eventData.category) ||
+      !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(
+        eventData.category
+      ) ||
       !['draft', 'published', 'cancelled', 'completed'].includes(eventData.status)
     ) {
       return res.status(400).json({ error: 'Invalid event details.' });
@@ -530,7 +591,9 @@ app.post('/api/events', requireEventManager, async (req: Request, res: Response)
       .single();
     if (error) {
       console.error('Event creation failed:', error.message);
-      return res.status(400).json({ error: 'Unable to create event. Check organizer and event details.' });
+      return res
+        .status(400)
+        .json({ error: 'Unable to create event. Check organizer and event details.' });
     }
     return res.status(201).json(databaseEventToEvent(data));
   }
@@ -543,7 +606,9 @@ app.post('/api/events', requireEventManager, async (req: Request, res: Response)
     title: body.title,
     description: body.description || '',
     category: body.category || 'running',
-    coverImage: body.coverImage || 'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=85',
+    coverImage:
+      body.coverImage ||
+      'https://images.unsplash.com/photo-1530549387789-4c1017266635?auto=format&fit=crop&w=1800&q=85',
     date: body.date,
     displayDate: body.displayDate || body.date,
     startTime: body.startTime,
@@ -556,7 +621,8 @@ app.post('/api/events', requireEventManager, async (req: Request, res: Response)
     currency: 'INR',
     registrationCapacity: capacity,
     slotsRemaining: capacity,
-    registrationDeadline: body.registrationDeadline || new Date(Date.now() + 86400000 * 7).toISOString(),
+    registrationDeadline:
+      body.registrationDeadline || new Date(Date.now() + 86400000 * 7).toISOString(),
     rules: body.rules || ['Follow organizer safety instructions.'],
     cancellationPolicy: body.cancellationPolicy || 'Standard 24-hour notice required.',
     primaryOrganizerId: body.primaryOrganizerId || 'org-01',
@@ -581,8 +647,7 @@ app.post('/api/events', requireEventManager, async (req: Request, res: Response)
 });
 
 // 6. Update Event
-app.put('/api/events/:id', requireEventManager, async (req: Request, res: Response) => {
-  const identity = req as Request & { verifiedUserId?: string; verifiedRole?: string };
+app.put('/api/events/:id', requireAdmin, async (req: Request, res: Response) => {
   if (supabaseAdmin) {
     const { data: existingEvent, error: existingError } = await supabaseAdmin
       .from('events')
@@ -594,25 +659,15 @@ app.put('/api/events/:id', requireEventManager, async (req: Request, res: Respon
       return res.status(500).json({ error: 'Unable to load event.' });
     }
     if (!existingEvent) return res.status(404).json({ error: 'Event not found.' });
-    if (identity.verifiedRole === 'organizer') {
-      const { data: organization, error } = await supabaseAdmin
-        .from('organizations')
-        .select('id')
-        .eq('id', existingEvent.primary_organizer_id)
-        .eq('owner_user_id', identity.verifiedUserId)
-        .eq('status', 'approved')
-        .maybeSingle();
-      if (error || !organization) {
-        return res.status(403).json({ error: 'You may only update events owned by your approved organization.' });
-      }
-    }
     const input = normalizeEventPayload(req.body);
     if (
       !Number.isInteger(input.registration_capacity) ||
       input.registration_capacity < 1 ||
       !Number.isInteger(input.price_in_paise) ||
       input.price_in_paise < 0 ||
-      !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(input.category) ||
+      !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(
+        input.category
+      ) ||
       !['draft', 'published', 'cancelled', 'completed'].includes(input.status)
     ) {
       return res.status(400).json({ error: 'Invalid event details.' });
@@ -625,7 +680,10 @@ app.put('/api/events/:id', requireEventManager, async (req: Request, res: Respon
       console.error('Event capacity lookup failed:', registrationsError.message);
       return res.status(500).json({ error: 'Unable to verify event capacity.' });
     }
-    const occupied = (registrationsForEvent || []).reduce((total, row) => total + row.ticket_count, 0);
+    const occupied = (registrationsForEvent || []).reduce(
+      (total, row) => total + row.ticket_count,
+      0
+    );
     const { data, error } = await supabaseAdmin
       .from('events')
       .update({ ...input, slots_remaining: Math.max(0, input.registration_capacity - occupied) })
@@ -640,18 +698,6 @@ app.put('/api/events/:id', requireEventManager, async (req: Request, res: Respon
   }
   const index = events.findIndex((e) => e.id === req.params.id);
   if (index === -1) return res.status(404).json({ error: 'Event not found' });
-  if (identity.verifiedRole === 'organizer') {
-    const { data: organization, error } = await supabaseAdmin!
-      .from('organizations')
-      .select('id')
-      .eq('id', events[index].primaryOrganizerId)
-      .eq('owner_user_id', identity.verifiedUserId)
-      .eq('status', 'approved')
-      .maybeSingle();
-    if (error || !organization) {
-      return res.status(403).json({ error: 'You may only update events owned by your approved organization.' });
-    }
-  }
   events[index] = { ...events[index], ...req.body };
   res.json(events[index]);
 });
@@ -668,30 +714,40 @@ app.get('/api/organizations', async (_req: Request, res: Response) => {
       console.error('Organization database query failed:', error.message);
       return res.status(503).json({ error: 'Unable to load organizations.' });
     }
-    return res.json((data || []).map((row) => ({
-      id: row.id,
-      name: row.name,
-      type: row.type,
-      description: row.description || '',
-      city: row.city,
-      address: row.address || undefined,
-      contactEmail: row.contact_email,
-      contactPhone: row.contact_phone,
-      website: row.website || undefined,
-      instagram: row.instagram || undefined,
-      logoUrl: row.logo_url || undefined,
-      status: row.status,
-      verified: row.verified,
-      ownerUserId: row.owner_user_id,
-      createdAt: row.created_at,
-    })));
+    return res.json(
+      (data || []).map((row) => ({
+        id: row.id,
+        name: row.name,
+        type: row.type,
+        description: row.description || '',
+        city: row.city,
+        address: row.address || undefined,
+        contactEmail: row.contact_email,
+        contactPhone: row.contact_phone,
+        website: row.website || undefined,
+        instagram: row.instagram || undefined,
+        logoUrl: row.logo_url || undefined,
+        status: row.status,
+        verified: row.verified,
+        ownerUserId: row.owner_user_id,
+        createdAt: row.created_at,
+      }))
+    );
   }
   res.json(organizations.filter((organization) => organization.status === 'approved'));
 });
 
 // 8. Submit Organizer Application
 app.post('/api/organizations/apply', (req: Request, res: Response) => {
-  const { organizationName, organizationType, city, contactEmail, contactPhone, description, userId } = req.body;
+  const {
+    organizationName,
+    organizationType,
+    city,
+    contactEmail,
+    contactPhone,
+    description,
+    userId,
+  } = req.body;
   if (!organizationName || !contactEmail || !contactPhone) {
     return res.status(400).json({ error: 'Missing contact or organization name' });
   }
@@ -758,7 +814,9 @@ app.post('/api/collaborations', (req: Request, res: Response) => {
 
 app.post('/api/collaboration-enquiries', async (req: Request, res: Response) => {
   if (!supabaseAdmin) {
-    return res.status(503).json({ error: 'Collaboration submissions require server-side Supabase configuration.' });
+    return res
+      .status(503)
+      .json({ error: 'Collaboration submissions require server-side Supabase configuration.' });
   }
   const { name, organizationType, phone, city, supportOptions, message } = req.body;
   if (
@@ -773,7 +831,9 @@ app.post('/api/collaboration-enquiries', async (req: Request, res: Response) => 
     !Array.isArray(supportOptions) ||
     supportOptions.some((option: unknown) => typeof option !== 'string')
   ) {
-    return res.status(400).json({ error: 'Please provide valid collaboration details and at least one support option.' });
+    return res.status(400).json({
+      error: 'Please provide valid collaboration details and at least one support option.',
+    });
   }
   const { data, error } = await supabaseAdmin
     .from('collaboration_enquiries')
@@ -789,12 +849,56 @@ app.post('/api/collaboration-enquiries', async (req: Request, res: Response) => 
     .single();
   if (error) {
     console.error('Collaboration enquiry persistence failed:', error.message);
-    return res.status(500).json({ error: 'Unable to save collaboration enquiry. Please try again.' });
+    return res
+      .status(500)
+      .json({ error: 'Unable to save collaboration enquiry. Please try again.' });
   }
   res.status(201).json({ success: true, id: data.id });
 });
 
-app.patch('/api/collaborations/:id', requireEventManager, (req: Request, res: Response) => {
+app.post('/api/contact-enquiries', async (req: Request, res: Response) => {
+  if (!supabaseAdmin) {
+    return res
+      .status(503)
+      .json({ error: 'Contact submissions require server-side Supabase configuration.' });
+  }
+  const { name, email, phone, interest, message } = req.body;
+  if (
+    typeof name !== 'string' ||
+    !name.trim() ||
+    typeof email !== 'string' ||
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim()) ||
+    typeof interest !== 'string' ||
+    !interest.trim() ||
+    (phone !== undefined && typeof phone !== 'string') ||
+    (message !== undefined && typeof message !== 'string')
+  ) {
+    return res.status(400).json({ error: 'Please provide valid contact details.' });
+  }
+  const messageParts = [];
+  if (typeof phone === 'string' && phone.trim())
+    messageParts.push(`Phone: ${phone.trim().slice(0, 40)}`);
+  if (typeof message === 'string' && message.trim())
+    messageParts.push(message.trim().slice(0, 2000));
+
+  const { data, error } = await supabaseAdmin
+    .from('contact_enquiries')
+    .insert({
+      name: name.trim().slice(0, 160),
+      email: email.trim().toLowerCase().slice(0, 320),
+      interest: interest.trim().slice(0, 160),
+      message: messageParts.join('\n\n') || null,
+    })
+    .select('id')
+    .single();
+  if (error) {
+    console.error('Contact enquiry persistence failed:', error.message);
+    return res.status(500).json({ error: 'Unable to save contact enquiry. Please try again.' });
+  }
+  res.status(201).json({ success: true, id: data.id });
+});
+
+app.patch('/api/collaborations/:id', requireAdmin, (req: Request, res: Response) => {
   const { status } = req.body;
   const collab = collaborationRequests.find((c) => c.id === req.params.id);
   if (!collab) {
@@ -826,13 +930,17 @@ app.patch('/api/collaborations/:id', requireEventManager, (req: Request, res: Re
 app.get('/api/registrations', async (req: Request, res: Response) => {
   const { userId, eventId } = req.query;
   if (!supabaseAdmin) {
-    return res.status(503).json({ error: 'Registration access requires the configured Supabase database.' });
+    return res
+      .status(503)
+      .json({ error: 'Registration access requires the configured Supabase database.' });
   }
   const token = (req.header('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1];
   if (!token) return res.status(401).json({ error: 'Sign in to view your registrations.' });
   const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
-  if (authError || !authData.user) return res.status(401).json({ error: 'Your session is invalid or expired.' });
-  if (userId && userId !== authData.user.id) return res.status(403).json({ error: 'You may only view your own registrations.' });
+  if (authError || !authData.user)
+    return res.status(401).json({ error: 'Your session is invalid or expired.' });
+  if (userId && userId !== authData.user.id)
+    return res.status(403).json({ error: 'You may only view your own registrations.' });
   let query = supabaseAdmin
     .from('event_registrations')
     .select('*,event:events(title,event_date,start_time,end_time,venue,city)')
@@ -844,46 +952,61 @@ app.get('/api/registrations', async (req: Request, res: Response) => {
     console.error('Registration database query failed:', error.message);
     return res.status(500).json({ error: 'Unable to load registrations.' });
   }
-  return res.json((data || []).map((row) => ({
-    id: row.id,
-    referenceId: row.reference_id,
-    eventId: row.event_id,
-    eventTitle: row.event?.title || '',
-    eventDate: row.event?.event_date || '',
-    eventTime: row.event?.start_time || '',
-    eventVenue: row.event?.venue || '',
-    eventCity: row.event?.city || '',
-    userId: row.user_id || '',
-    fullName: row.full_name,
-    email: row.email,
-    phone: row.phone,
-    gender: row.gender || undefined,
-    instagram: row.instagram || undefined,
-    emergencyContact: row.emergency_contact || undefined,
-    ticketCount: row.ticket_count,
-    unitPriceInPaise: row.unit_price_in_paise,
-    totalAmountInPaise: row.total_amount_in_paise,
-    paymentStatus: row.payment_status,
-    razorpayOrderId: row.razorpay_order_id || undefined,
-    razorpayPaymentId: row.razorpay_payment_id || undefined,
-    qrToken: row.qr_token,
-    createdAt: row.created_at,
-  })));
+  return res.json(
+    (data || []).map((row) => ({
+      id: row.id,
+      referenceId: row.reference_id,
+      eventId: row.event_id,
+      eventTitle: row.event?.title || '',
+      eventDate: row.event?.event_date || '',
+      eventTime: row.event?.start_time || '',
+      eventVenue: row.event?.venue || '',
+      eventCity: row.event?.city || '',
+      userId: row.user_id || '',
+      fullName: row.full_name,
+      email: row.email,
+      phone: row.phone,
+      gender: row.gender || undefined,
+      instagram: row.instagram || undefined,
+      emergencyContact: row.emergency_contact || undefined,
+      ticketCount: row.ticket_count,
+      unitPriceInPaise: row.unit_price_in_paise,
+      totalAmountInPaise: row.total_amount_in_paise,
+      paymentStatus: row.payment_status,
+      razorpayOrderId: row.razorpay_order_id || undefined,
+      razorpayPaymentId: row.razorpay_payment_id || undefined,
+      qrToken: row.qr_token,
+      createdAt: row.created_at,
+    }))
+  );
 });
 
 // 11. Create Free Registration (Zero Payment)
 app.post('/api/registrations/free', async (req: Request, res: Response) => {
-  const { eventId, userId, fullName, email, phone, gender, instagram, emergencyContact, ticketCount = 1 } = req.body;
+  const {
+    eventId,
+    userId,
+    fullName,
+    email,
+    phone,
+    gender,
+    instagram,
+    emergencyContact,
+    ticketCount = 1,
+  } = req.body;
   if (supabaseAdmin) {
     const count = Number(ticketCount);
     if (!Number.isInteger(count) || count < 1 || count > 10 || !fullName || !email || !phone) {
-      return res.status(400).json({ error: 'Please provide valid participant and ticket details.' });
+      return res
+        .status(400)
+        .json({ error: 'Please provide valid participant and ticket details.' });
     }
     const token = (req.header('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1];
     let authenticatedUserId: string | null = null;
     if (token) {
       const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(token);
-      if (authError || !authData.user) return res.status(401).json({ error: 'Your session is invalid or expired.' });
+      if (authError || !authData.user)
+        return res.status(401).json({ error: 'Your session is invalid or expired.' });
       authenticatedUserId = authData.user.id;
     }
     const { data, error } = await supabaseAdmin.rpc('register_free_event', {
@@ -899,7 +1022,9 @@ app.post('/api/registrations/free', async (req: Request, res: Response) => {
     });
     if (error || !data?.[0]) {
       if (error) console.warn('Free registration was not completed:', error.message);
-      return res.status(409).json({ error: 'Registration failed. The event may be unavailable or full.' });
+      return res
+        .status(409)
+        .json({ error: 'Registration failed. The event may be unavailable or full.' });
     }
     const [row] = data;
     const { data: eventRow } = await supabaseAdmin
@@ -1026,10 +1151,21 @@ app.get('/api/waitlist', (_req: Request, res: Response) => {
 });
 
 app.post('/api/waitlist', (req: Request, res: Response) => {
-  const { fullName, email, phone, city = 'Patna', eventId, eventTitle, paceInterest, notes } = req.body;
+  const {
+    fullName,
+    email,
+    phone,
+    city = 'Patna',
+    eventId,
+    eventTitle,
+    paceInterest,
+    notes,
+  } = req.body;
 
   if (!fullName || !email || !phone) {
-    return res.status(400).json({ error: 'Full name, email, and phone are required for waitlist notification.' });
+    return res
+      .status(400)
+      .json({ error: 'Full name, email, and phone are required for waitlist notification.' });
   }
 
   const referenceId = `WL-${(city || 'PATNA').toUpperCase().slice(0, 5)}-${Math.floor(1000 + Math.random() * 9000)}`;
@@ -1077,7 +1213,8 @@ app.post('/api/razorpay/create-order', async (req: Request, res: Response) => {
   const razorpaySecret = process.env.RAZORPAY_KEY_SECRET;
   if (!razorpayKeyId || !razorpaySecret || razorpayKeyId.includes('YourKeyIdHere')) {
     return res.status(400).json({
-      error: 'Razorpay payment gateway is not configured yet. Live payments require gateway API credentials.',
+      error:
+        'Razorpay payment gateway is not configured yet. Live payments require gateway API credentials.',
       configured: false,
     });
   }
@@ -1103,14 +1240,17 @@ app.post('/api/razorpay/create-order', async (req: Request, res: Response) => {
     event = events.find((item) => item.id === eventId) || null;
   }
   if (!event) return res.status(404).json({ error: 'Event not found.' });
-  if (event.status !== 'published') return res.status(400).json({ error: 'This event is not open for registration.' });
-  if (event.priceInPaise <= 0) return res.status(400).json({ error: 'Free event does not require a Razorpay order.' });
+  if (event.status !== 'published')
+    return res.status(400).json({ error: 'This event is not open for registration.' });
+  if (event.priceInPaise <= 0)
+    return res.status(400).json({ error: 'Free event does not require a Razorpay order.' });
 
   let authenticatedUserId: string | null = null;
   const sessionToken = (req.header('authorization') || '').match(/^Bearer\s+(.+)$/i)?.[1];
   if (sessionToken && supabaseAdmin) {
     const { data: authData, error: authError } = await supabaseAdmin.auth.getUser(sessionToken);
-    if (authError || !authData.user) return res.status(401).json({ error: 'Your session is invalid or expired.' });
+    if (authError || !authData.user)
+      return res.status(401).json({ error: 'Your session is invalid or expired.' });
     authenticatedUserId = authData.user.id;
   }
 
@@ -1121,7 +1261,9 @@ app.post('/api/razorpay/create-order', async (req: Request, res: Response) => {
       p_ticket_count: ticketCount,
       p_user_id: authenticatedUserId,
       p_full_name: String(req.body.userName || req.body.userEmail || 'FitMeet participant').trim(),
-      p_email: String(req.body.userEmail || '').trim().toLowerCase(),
+      p_email: String(req.body.userEmail || '')
+        .trim()
+        .toLowerCase(),
       p_phone: String(req.body.userPhone || '').trim(),
       p_gender: null,
       p_instagram: null,
@@ -1161,17 +1303,23 @@ app.post('/api/razorpay/create-order', async (req: Request, res: Response) => {
   } catch (error) {
     console.error('Razorpay order creation request failed:', error);
     if (reservedRegistration && supabaseAdmin) {
-      await supabaseAdmin.rpc('cancel_pending_event_registration', { p_registration_id: reservedRegistration.id });
+      await supabaseAdmin.rpc('cancel_pending_event_registration', {
+        p_registration_id: reservedRegistration.id,
+      });
     } else if (!supabaseAdmin) {
       const memoryEvent = events.find((item) => item.id === event!.id);
       if (memoryEvent) memoryEvent.slotsRemaining += ticketCount;
     }
-    return res.status(502).json({ error: 'Payment provider could not be reached. Please try again.' });
+    return res
+      .status(502)
+      .json({ error: 'Payment provider could not be reached. Please try again.' });
   }
   if (!razorpayResponse.ok || !razorpayOrder?.id || razorpayOrder.amount !== amountInPaise) {
     console.error('Razorpay rejected order creation:', razorpayOrder);
     if (reservedRegistration && supabaseAdmin) {
-      await supabaseAdmin.rpc('cancel_pending_event_registration', { p_registration_id: reservedRegistration.id });
+      await supabaseAdmin.rpc('cancel_pending_event_registration', {
+        p_registration_id: reservedRegistration.id,
+      });
     } else if (!supabaseAdmin) {
       const memoryEvent = events.find((item) => item.id === event!.id);
       if (memoryEvent) memoryEvent.slotsRemaining += ticketCount;
@@ -1192,9 +1340,16 @@ app.post('/api/razorpay/create-order', async (req: Request, res: Response) => {
       status: 'created',
     });
     if (registrationError || paymentError) {
-      console.error('Unable to persist payment order:', registrationError?.message || paymentError?.message);
-      await supabaseAdmin.rpc('cancel_pending_event_registration', { p_registration_id: reservedRegistration.id });
-      return res.status(500).json({ error: 'Unable to save the payment order. Please contact FitMeet support.' });
+      console.error(
+        'Unable to persist payment order:',
+        registrationError?.message || paymentError?.message
+      );
+      await supabaseAdmin.rpc('cancel_pending_event_registration', {
+        p_registration_id: reservedRegistration.id,
+      });
+      return res
+        .status(500)
+        .json({ error: 'Unable to save the payment order. Please contact FitMeet support.' });
     }
   }
 
@@ -1223,7 +1378,9 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
     typeof razorpay_payment_id !== 'string' ||
     typeof razorpay_signature !== 'string'
   ) {
-    return res.status(400).json({ error: 'Payment order, transaction, and signature are required.' });
+    return res
+      .status(400)
+      .json({ error: 'Payment order, transaction, and signature are required.' });
   }
 
   const expectedSignature = crypto
@@ -1258,7 +1415,9 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
       return res.status(500).json({ error: 'Unable to verify this payment record.' });
     }
     if (!payment || !payment.registration) {
-      return res.status(404).json({ error: 'The payment order is not associated with a FitMeet registration.' });
+      return res
+        .status(404)
+        .json({ error: 'The payment order is not associated with a FitMeet registration.' });
     }
     registrationRow = payment.registration;
     verifiedTicketCount = registrationRow.ticket_count;
@@ -1294,9 +1453,14 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
   } else {
     event = events.find((item) => item.id === eventId) || null;
     if (!event) return res.status(404).json({ error: 'Event not found.' });
-    const orderResponse = await fetch(`https://api.razorpay.com/v1/orders/${encodeURIComponent(razorpay_order_id)}`, {
-      headers: { Authorization: `Basic ${Buffer.from(`${razorpayKeyId}:${razorpaySecret}`).toString('base64')}` },
-    });
+    const orderResponse = await fetch(
+      `https://api.razorpay.com/v1/orders/${encodeURIComponent(razorpay_order_id)}`,
+      {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${razorpayKeyId}:${razorpaySecret}`).toString('base64')}`,
+        },
+      }
+    );
     const order = await orderResponse.json();
     verifiedTicketCount = Number(order.notes?.ticket_count);
     if (
@@ -1317,7 +1481,11 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
   try {
     paymentResponse = await fetch(
       `https://api.razorpay.com/v1/payments/${encodeURIComponent(razorpay_payment_id)}`,
-      { headers: { Authorization: `Basic ${Buffer.from(`${razorpayKeyId}:${razorpaySecret}`).toString('base64')}` } }
+      {
+        headers: {
+          Authorization: `Basic ${Buffer.from(`${razorpayKeyId}:${razorpaySecret}`).toString('base64')}`,
+        },
+      }
     );
     providerPayment = await paymentResponse.json();
   } catch (error) {
@@ -1353,7 +1521,9 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
     providerPayment.amount !== expectedAmount ||
     providerPayment.currency !== 'INR'
   ) {
-    return res.status(400).json({ error: 'Razorpay has not confirmed a captured payment for the expected amount.' });
+    return res
+      .status(400)
+      .json({ error: 'Razorpay has not confirmed a captured payment for the expected amount.' });
   }
 
   if (supabaseAdmin && registrationRow) {
@@ -1369,8 +1539,14 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
       .select('id')
       .maybeSingle();
     if (paymentUpdateError || !paymentUpdate) {
-      console.error('Captured payment record update failed:', paymentUpdateError?.message || 'Payment was already processed.');
-      return res.status(409).json({ error: 'Payment was captured, but its registration could not be finalized. Contact FitMeet support.' });
+      console.error(
+        'Captured payment record update failed:',
+        paymentUpdateError?.message || 'Payment was already processed.'
+      );
+      return res.status(409).json({
+        error:
+          'Payment was captured, but its registration could not be finalized. Contact FitMeet support.',
+      });
     }
     const { data: updatedRegistration, error: registrationUpdateError } = await supabaseAdmin
       .from('event_registrations')
@@ -1384,15 +1560,24 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
       .select('*')
       .maybeSingle();
     if (registrationUpdateError || !updatedRegistration) {
-      console.error('Captured payment registration update failed:', registrationUpdateError?.message || 'Registration was already finalized.');
-      return res.status(500).json({ error: 'Payment was captured but registration finalization failed. Contact FitMeet support.' });
+      console.error(
+        'Captured payment registration update failed:',
+        registrationUpdateError?.message || 'Registration was already finalized.'
+      );
+      return res.status(500).json({
+        error:
+          'Payment was captured but registration finalization failed. Contact FitMeet support.',
+      });
     }
     const { data: eventRow } = await supabaseAdmin
       .from('events')
       .select('*,organizer:organizations(name)')
       .eq('id', updatedRegistration.event_id)
       .maybeSingle();
-    if (!eventRow) return res.status(500).json({ error: 'Payment was captured but event details could not be loaded.' });
+    if (!eventRow)
+      return res
+        .status(500)
+        .json({ error: 'Payment was captured but event details could not be loaded.' });
     return res.json({
       success: true,
       registration: databaseRegistrationToResponse(updatedRegistration, eventRow),
@@ -1435,7 +1620,11 @@ app.post('/api/razorpay/verify-payment', async (req: Request, res: Response) => 
     action: 'PAYMENT_VERIFIED_AND_CONFIRMED',
     details: `Razorpay captured payment ${razorpay_payment_id} for ${event.title}.`,
   });
-  res.json({ success: true, registration, message: 'Payment verified and registration confirmed.' });
+  res.json({
+    success: true,
+    registration,
+    message: 'Payment verified and registration confirmed.',
+  });
 });
 
 // 12. Razorpay Webhook Handler (Raw Body HMAC Verification)
@@ -1448,10 +1637,7 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
   if (typeof webhookSignature !== 'string' || !req.rawBody) {
     return res.status(400).json({ error: 'Missing webhook signature or raw request body.' });
   }
-  const expectedSignature = crypto
-    .createHmac('sha256', webhookSecret)
-    .update(req.rawBody)
-    .digest();
+  const expectedSignature = crypto.createHmac('sha256', webhookSecret).update(req.rawBody).digest();
   const submittedSignature = Buffer.from(webhookSignature, 'hex');
   if (
     submittedSignature.length !== expectedSignature.length ||
@@ -1473,7 +1659,9 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
       return res.status(400).json({ error: 'Invalid captured-payment webhook payload.' });
     }
     if (!supabaseAdmin) {
-      return res.status(503).json({ error: 'Payment reconciliation requires server-side Supabase credentials.' });
+      return res
+        .status(503)
+        .json({ error: 'Payment reconciliation requires server-side Supabase credentials.' });
     }
 
     const { data: linkedPayment, error: paymentLookupError } = await supabaseAdmin
@@ -1487,17 +1675,23 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
     }
     if (!linkedPayment) return res.json({ status: 'ignored' });
     if (linkedPayment.amount_in_paise !== capturedPayment.amount) {
-      return res.status(400).json({ error: 'Captured-payment amount does not match the stored order.' });
+      return res
+        .status(400)
+        .json({ error: 'Captured-payment amount does not match the stored order.' });
     }
     if (
       linkedPayment.status === 'captured' &&
       linkedPayment.razorpay_payment_id !== capturedPayment.id
     ) {
-      return res.status(409).json({ error: 'The order is already associated with another captured payment.' });
+      return res
+        .status(409)
+        .json({ error: 'The order is already associated with another captured payment.' });
     }
     if (linkedPayment.status !== 'captured') {
       if (!['created', 'authorized'].includes(linkedPayment.status)) {
-        return res.status(409).json({ error: 'The stored order is no longer eligible for capture.' });
+        return res
+          .status(409)
+          .json({ error: 'The stored order is no longer eligible for capture.' });
       }
       const { error: paymentUpdateError } = await supabaseAdmin
         .from('payments')
@@ -1516,7 +1710,10 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
       .eq('id', linkedPayment.registration_id)
       .maybeSingle();
     if (registrationLookupError || !registration) {
-      console.error('Webhook registration lookup failed:', registrationLookupError?.message || 'Registration not found.');
+      console.error(
+        'Webhook registration lookup failed:',
+        registrationLookupError?.message || 'Registration not found.'
+      );
       return res.status(503).json({ error: 'Unable to reconcile the registration.' });
     }
     if (registration.payment_status === 'pending_payment') {
@@ -1533,7 +1730,9 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
       registration.payment_status !== 'paid' ||
       registration.razorpay_payment_id !== capturedPayment.id
     ) {
-      return res.status(409).json({ error: 'The registration is no longer eligible for this payment.' });
+      return res
+        .status(409)
+        .json({ error: 'The registration is no longer eligible for this payment.' });
     }
   }
 
@@ -1548,7 +1747,243 @@ app.post('/api/razorpay/webhook', async (req: any, res: Response) => {
   res.json({ status: 'ok' });
 });
 
+const GALLERY_STORAGE_BUCKET = 'fitmeet-gallery';
+const GALLERY_MAX_IMAGE_BYTES = 10 * 1024 * 1024;
+const GALLERY_IMAGE_EXTENSIONS: Record<string, string> = {
+  'image/jpeg': 'jpg',
+  'image/png': 'png',
+  'image/webp': 'webp',
+};
+
+const isValidGalleryImage = (image: Buffer, contentType: string) => {
+  if (contentType === 'image/jpeg') {
+    return image.length >= 3 && image[0] === 0xff && image[1] === 0xd8 && image[2] === 0xff;
+  }
+  if (contentType === 'image/png') {
+    return (
+      image.length >= 8 &&
+      image.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+    );
+  }
+  if (contentType === 'image/webp') {
+    return (
+      image.length >= 12 &&
+      image.toString('ascii', 0, 4) === 'RIFF' &&
+      image.toString('ascii', 8, 12) === 'WEBP'
+    );
+  }
+  return false;
+};
+
+app.get('/api/gallery', async (_req: Request, res: Response) => {
+  if (!supabaseAdmin) {
+    return res
+      .status(503)
+      .json({ error: 'Gallery services require server-side Supabase credentials.' });
+  }
+  try {
+    const { data, error } = await supabaseAdmin
+      .from('gallery_images')
+      .select('id,image_url,caption,created_at')
+      .order('created_at', { ascending: false });
+    if (error) {
+      console.error('Public gallery query failed:', error.message);
+      return res.status(500).json({ error: 'Unable to load gallery images.' });
+    }
+    return res.json(data || []);
+  } catch (error) {
+    console.error('Public gallery request failed:', error);
+    return res.status(500).json({ error: 'Unable to load gallery images.' });
+  }
+});
+
 app.use('/api/admin', requireAdmin);
+
+app.get('/api/admin/portal/gallery', async (_req: Request, res: Response) => {
+  const db = supabaseAdmin;
+  if (!db) {
+    return res
+      .status(503)
+      .json({ error: 'Gallery services require server-side Supabase credentials.' });
+  }
+  const { data, error } = await db
+    .from('gallery_images')
+    .select('id,image_url,caption,created_at')
+    .order('created_at', { ascending: false });
+  if (error) {
+    console.error('Admin gallery query failed:', error.message);
+    return res.status(500).json({ error: 'Unable to load gallery images.' });
+  }
+  return res.json(data || []);
+});
+
+app.post(
+  '/api/admin/portal/gallery',
+  express.raw({ type: 'image/*', limit: GALLERY_MAX_IMAGE_BYTES }),
+  async (req: Request, res: Response) => {
+    const db = supabaseAdmin;
+    if (!db) {
+      return res
+        .status(503)
+        .json({ error: 'Gallery services require server-side Supabase credentials.' });
+    }
+
+    const contentType = (req.header('content-type') || '').split(';')[0].trim().toLowerCase();
+    const image = Buffer.isBuffer(req.body) ? req.body : null;
+    let caption: string;
+    try {
+      caption = decodeURIComponent(req.header('x-image-caption') || '');
+    } catch {
+      return res.status(400).json({ error: 'The image caption is invalid.' });
+    }
+    if (!image || image.length === 0 || image.length > GALLERY_MAX_IMAGE_BYTES) {
+      return res.status(400).json({ error: 'Choose an image no larger than 10 MB.' });
+    }
+    if (!GALLERY_IMAGE_EXTENSIONS[contentType] || !isValidGalleryImage(image, contentType)) {
+      return res.status(415).json({ error: 'Upload a valid JPEG, PNG or WebP image.' });
+    }
+    if (caption.length > 500) {
+      return res.status(400).json({ error: 'Captions must be 500 characters or fewer.' });
+    }
+
+    const storagePath = `${crypto.randomUUID()}.${GALLERY_IMAGE_EXTENSIONS[contentType]}`;
+    try {
+      const { error: storageError } = await db.storage
+        .from(GALLERY_STORAGE_BUCKET)
+        .upload(storagePath, image, {
+          cacheControl: '31536000',
+          contentType,
+          upsert: false,
+        });
+      if (storageError) {
+        console.error('Gallery image upload failed:', storageError.message);
+        return res.status(500).json({ error: 'Unable to store this gallery image.' });
+      }
+
+      const { data: publicUrl } = db.storage.from(GALLERY_STORAGE_BUCKET).getPublicUrl(storagePath);
+      const { data, error } = await db
+        .from('gallery_images')
+        .insert({
+          image_url: publicUrl.publicUrl,
+          storage_path: storagePath,
+          caption: caption.trim(),
+        })
+        .select('id,image_url,caption,created_at')
+        .single();
+      if (error) {
+        const { error: cleanupError } = await db.storage
+          .from(GALLERY_STORAGE_BUCKET)
+          .remove([storagePath]);
+        if (cleanupError) {
+          console.error('Unable to clean up an unlisted gallery image:', cleanupError.message);
+        }
+        console.error('Gallery image record creation failed:', error.message);
+        return res.status(500).json({ error: 'Unable to add this image to the gallery.' });
+      }
+      return res.status(201).json(data);
+    } catch (error) {
+      console.error('Gallery image upload request failed:', error);
+      return res.status(500).json({ error: 'Unable to upload this gallery image.' });
+    }
+  },
+  (error: unknown, _req: Request, res: Response, _next: NextFunction) => {
+    const status = (error as { status?: number }).status;
+    if (status === 413) {
+      return res.status(413).json({ error: 'Each gallery image must be 10 MB or smaller.' });
+    }
+    console.error('Gallery upload body parsing failed:', error);
+    return res.status(400).json({ error: 'Unable to read the uploaded image.' });
+  }
+);
+
+app.patch('/api/admin/portal/gallery/:id', async (req: Request, res: Response) => {
+  const db = supabaseAdmin;
+  if (!db) {
+    return res
+      .status(503)
+      .json({ error: 'Gallery services require server-side Supabase credentials.' });
+  }
+  if (!req.body || typeof req.body.caption !== 'string' || req.body.caption.length > 500) {
+    return res.status(400).json({ error: 'Provide a caption with 500 characters or fewer.' });
+  }
+  const { data, error } = await db
+    .from('gallery_images')
+    .update({ caption: req.body.caption.trim() })
+    .eq('id', req.params.id)
+    .select('id,image_url,caption,created_at')
+    .maybeSingle();
+  if (error) {
+    console.error('Gallery caption update failed:', error.message);
+    return res.status(500).json({ error: 'Unable to update the gallery caption.' });
+  }
+  if (!data) return res.status(404).json({ error: 'Gallery image not found.' });
+  return res.json(data);
+});
+
+app.delete('/api/admin/portal/gallery/:id', async (req: Request, res: Response) => {
+  const db = supabaseAdmin;
+  if (!db) {
+    return res
+      .status(503)
+      .json({ error: 'Gallery services require server-side Supabase credentials.' });
+  }
+  const { data: image, error: lookupError } = await db
+    .from('gallery_images')
+    .select('id,storage_path')
+    .eq('id', req.params.id)
+    .maybeSingle();
+  if (lookupError) {
+    console.error('Gallery image lookup failed during delete:', lookupError.message);
+    return res.status(500).json({ error: 'Unable to delete this gallery image.' });
+  }
+  if (!image) return res.status(404).json({ error: 'Gallery image not found.' });
+
+  const { error: deleteError } = await db.from('gallery_images').delete().eq('id', image.id);
+  if (deleteError) {
+    console.error('Gallery image record deletion failed:', deleteError.message);
+    return res.status(500).json({ error: 'Unable to delete this gallery image.' });
+  }
+  const { error: storageError } = await db.storage
+    .from(GALLERY_STORAGE_BUCKET)
+    .remove([image.storage_path]);
+  if (storageError) {
+    console.error('Gallery image storage cleanup failed:', storageError.message);
+    return res.json({
+      storageCleanupWarning:
+        'The photo is no longer public, but its stored file could not be removed.',
+    });
+  }
+  return res.json({ deleted: true });
+});
+
+app.get('/api/admin/portal/settings', async (_req: Request, res: Response) => {
+  const { settings, error } = await loadSiteSettings();
+  if (error) {
+    console.error('Admin site settings query failed:', error.message);
+    return res.status(500).json({ error: 'Unable to load site settings.' });
+  }
+  res.json(settings);
+});
+
+app.put('/api/admin/portal/settings', async (req: Request, res: Response) => {
+  const patch = parseSiteSettingsPatch(req.body);
+  if (!Object.keys(patch).length) {
+    return res.status(400).json({ error: 'Provide at least one valid site setting.' });
+  }
+  const { settings, error } = await saveSiteSettings(patch);
+  if (error) {
+    console.error('Admin site settings update failed:', error.message);
+    return res.status(500).json({ error: 'Unable to save site settings.' });
+  }
+  auditLogs.unshift({
+    id: `log-${Date.now()}`,
+    timestamp: new Date().toISOString(),
+    actorEmail: 'admin@fitmeet.in',
+    action: 'UPDATE_SITE_SETTINGS',
+    details: 'CMS settings updated by platform owner.',
+  });
+  res.json(settings);
+});
 
 const adminEventFromRow = (row: any): FitnessEvent => ({
   id: row.id,
@@ -1648,7 +2083,10 @@ const normalizeEventPayload = (body: any) => {
 
 app.get('/api/admin/portal/overview', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const [users, eventsCount, registrations, payments] = await Promise.all([
     db.from('profiles').select('id', { count: 'exact', head: true }),
     db.from('events').select('id', { count: 'exact', head: true }),
@@ -1664,13 +2102,19 @@ app.get('/api/admin/portal/overview', async (_req: Request, res: Response) => {
     totalUsers: users.count || 0,
     totalEvents: eventsCount.count || 0,
     totalRegistrations: registrations.count || 0,
-    totalRevenuePaise: (payments.data || []).reduce((total, payment) => total + payment.amount_in_paise, 0),
+    totalRevenuePaise: (payments.data || []).reduce(
+      (total, payment) => total + payment.amount_in_paise,
+      0
+    ),
   });
 });
 
 app.get('/api/admin/portal/events', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { data, error } = await db
     .from('events')
     .select('*,organizer:organizations(name)')
@@ -1684,7 +2128,10 @@ app.get('/api/admin/portal/events', async (_req: Request, res: Response) => {
 
 app.get('/api/admin/portal/organizations', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { data, error } = await db
     .from('organizations')
     .select('id,name')
@@ -1699,7 +2146,10 @@ app.get('/api/admin/portal/organizations', async (_req: Request, res: Response) 
 
 app.post('/api/admin/portal/events', async (req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const input = normalizeEventPayload(req.body);
   if (
     !input.title ||
@@ -1713,7 +2163,9 @@ app.post('/api/admin/portal/events', async (req: Request, res: Response) => {
     input.registration_capacity < 1 ||
     !Number.isInteger(input.price_in_paise) ||
     input.price_in_paise < 0 ||
-    !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(input.category) ||
+    !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(
+      input.category
+    ) ||
     !['draft', 'published', 'cancelled', 'completed'].includes(input.status)
   ) {
     return res.status(400).json({ error: 'Please provide valid event details.' });
@@ -1725,14 +2177,19 @@ app.post('/api/admin/portal/events', async (req: Request, res: Response) => {
     .single();
   if (error) {
     console.error('Admin event creation failed:', error.message);
-    return res.status(400).json({ error: 'Could not create event. Check the organizer and event details.' });
+    return res
+      .status(400)
+      .json({ error: 'Could not create event. Check the organizer and event details.' });
   }
   res.status(201).json(adminEventFromRow(data));
 });
 
 app.put('/api/admin/portal/events/:id', async (req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const input = normalizeEventPayload(req.body);
   if (
     !input.title ||
@@ -1746,7 +2203,9 @@ app.put('/api/admin/portal/events/:id', async (req: Request, res: Response) => {
     input.registration_capacity < 1 ||
     !Number.isInteger(input.price_in_paise) ||
     input.price_in_paise < 0 ||
-    !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(input.category) ||
+    !['running', 'gym_hiit', 'bootcamp', 'yoga_mobility', 'hyrox_crossfit', 'cycling'].includes(
+      input.category
+    ) ||
     !['draft', 'published', 'cancelled', 'completed'].includes(input.status)
   ) {
     return res.status(400).json({ error: 'Please provide valid event details.' });
@@ -1776,18 +2235,26 @@ app.put('/api/admin/portal/events/:id', async (req: Request, res: Response) => {
 
 app.delete('/api/admin/portal/events/:id', async (req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { error } = await db.from('events').delete().eq('id', req.params.id);
   if (error) {
     console.error('Admin event deletion failed:', error.message);
-    return res.status(409).json({ error: 'Event could not be deleted; it may have registrations or related records.' });
+    return res
+      .status(409)
+      .json({ error: 'Event could not be deleted; it may have registrations or related records.' });
   }
   res.json({ success: true });
 });
 
 app.get('/api/admin/portal/users', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { data, error } = await db
     .from('profiles')
     .select('id,email,first_name,last_name,phone,role,is_active,created_at')
@@ -1801,7 +2268,10 @@ app.get('/api/admin/portal/users', async (_req: Request, res: Response) => {
 
 app.patch('/api/admin/portal/users/:id', async (req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   if (typeof req.body.isActive !== 'boolean') {
     return res.status(400).json({ error: 'A valid account status is required.' });
   }
@@ -1815,7 +2285,7 @@ app.patch('/api/admin/portal/users/:id', async (req: Request, res: Response) => 
     .from('profiles')
     .update({ is_active: req.body.isActive })
     .eq('id', req.params.id)
-    .neq('role', 'super_admin')
+    .neq('role', 'admin')
     .select('id,is_active')
     .maybeSingle();
   if (error) {
@@ -1840,10 +2310,15 @@ app.patch('/api/admin/portal/users/:id', async (req: Request, res: Response) => 
 
 app.get('/api/admin/portal/registrations', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { data, error } = await db
     .from('event_registrations')
-    .select('id,reference_id,event_id,user_id,full_name,email,phone,emergency_contact,ticket_count,unit_price_in_paise,total_amount_in_paise,payment_status,razorpay_order_id,razorpay_payment_id,created_at,event:events(title)')
+    .select(
+      'id,reference_id,event_id,user_id,full_name,email,phone,emergency_contact,ticket_count,unit_price_in_paise,total_amount_in_paise,payment_status,razorpay_order_id,razorpay_payment_id,created_at,event:events(title)'
+    )
     .order('created_at', { ascending: false });
   if (error) {
     console.error('Admin registration query failed:', error.message);
@@ -1854,10 +2329,15 @@ app.get('/api/admin/portal/registrations', async (_req: Request, res: Response) 
 
 app.get('/api/admin/portal/payments', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
   const { data, error } = await db
     .from('payments')
-    .select('id,registration_id,razorpay_order_id,razorpay_payment_id,amount_in_paise,currency,status,error_code,error_description,created_at,registration:event_registrations(reference_id,full_name,email,event_id)')
+    .select(
+      'id,registration_id,razorpay_order_id,razorpay_payment_id,amount_in_paise,currency,status,error_code,error_description,created_at,registration:event_registrations(reference_id,full_name,email,event_id)'
+    )
     .order('created_at', { ascending: false });
   if (error) {
     console.error('Admin payment query failed:', error.message);
@@ -1868,26 +2348,45 @@ app.get('/api/admin/portal/payments', async (_req: Request, res: Response) => {
 
 app.get('/api/admin/portal/enquiries', async (_req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
-  const { data, error } = await db
-    .from('collaboration_enquiries')
-    .select('*')
-    .order('created_at', { ascending: false });
-  if (error) {
-    console.error('Admin enquiry query failed:', error.message);
-    return res.status(500).json({ error: 'Unable to load collaboration enquiries.' });
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
+  const [collaboration, contact] = await Promise.all([
+    db.from('collaboration_enquiries').select('*').order('created_at', { ascending: false }),
+    db.from('contact_enquiries').select('*').order('created_at', { ascending: false }),
+  ]);
+  if (collaboration.error || contact.error) {
+    console.error(
+      'Admin enquiry query failed:',
+      collaboration.error?.message || contact.error?.message
+    );
+    return res.status(500).json({ error: 'Unable to load contact and collaboration enquiries.' });
   }
-  res.json(data || []);
+  res.json(
+    [
+      ...(contact.data || []).map((row) => ({ ...row, kind: 'contact' })),
+      ...(collaboration.data || []).map((row) => ({ ...row, kind: 'collaboration' })),
+    ].sort((a, b) => b.created_at.localeCompare(a.created_at))
+  );
 });
 
-app.patch('/api/admin/portal/enquiries/:id', async (req: Request, res: Response) => {
+app.patch('/api/admin/portal/enquiries/:kind/:id', async (req: Request, res: Response) => {
   const db = supabaseAdmin;
-  if (!db) return res.status(503).json({ error: 'Admin services require server-side Supabase credentials.' });
-  if (!['new', 'contacted', 'archived'].includes(req.body.status)) {
+  if (!db)
+    return res
+      .status(503)
+      .json({ error: 'Admin services require server-side Supabase credentials.' });
+  const isContact = req.params.kind === 'contact';
+  const isCollaboration = req.params.kind === 'collaboration';
+  const allowedStatuses = isContact
+    ? ['unread', 'responded', 'archived']
+    : ['new', 'contacted', 'archived'];
+  if ((!isContact && !isCollaboration) || !allowedStatuses.includes(req.body.status)) {
     return res.status(400).json({ error: 'Invalid enquiry status.' });
   }
   const { data, error } = await db
-    .from('collaboration_enquiries')
+    .from(isContact ? 'contact_enquiries' : 'collaboration_enquiries')
     .update({ status: req.body.status })
     .eq('id', req.params.id)
     .select('*')
@@ -1897,7 +2396,7 @@ app.patch('/api/admin/portal/enquiries/:id', async (req: Request, res: Response)
     return res.status(500).json({ error: 'Unable to update enquiry.' });
   }
   if (!data) return res.status(404).json({ error: 'Enquiry not found.' });
-  res.json(data);
+  res.json({ ...data, kind: isContact ? 'contact' : 'collaboration' });
 });
 
 // 13. Admin Oversight & Moderation

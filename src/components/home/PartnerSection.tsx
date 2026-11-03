@@ -40,9 +40,7 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
   const [submitting, setSubmitting] = useState(false);
 
   const toggleSupport = (val: string) => {
-    setSupport((prev) =>
-      prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]
-    );
+    setSupport((prev) => (prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]));
   };
 
   const handleOpenForm = () => {
@@ -103,14 +101,19 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
       });
       setSuccess(true);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.');
+      setError(
+        submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.'
+      );
     } finally {
       setSubmitting(false);
     }
   };
 
   return (
-    <section id="collaborate" className="bg-[#0b0b0d] text-[#b8b9c0] py-20 sm:py-28 transition-colors border-b border-[#16171a]">
+    <section
+      id="collaborate"
+      className="bg-[#0b0b0d] text-[#b8b9c0] py-20 sm:py-28 transition-colors border-b border-[#16171a]"
+    >
       <div className="mx-auto max-w-[1240px] px-4 sm:px-8 space-y-16">
         {/* ================= RECREATED PARTNERS SHOWCASE (Matches Image 4) ================= */}
         <div className="flex flex-col items-center text-center">
@@ -192,13 +195,17 @@ export const PartnerSection: React.FC<PartnerSectionProps> = ({ onPartnerClick }
 
         {/* ================= DETAILED COLLABORATION FORM (Preserved & Enhanced) ================= */}
         {showFullForm && (
-          <div id="collaborate-form" className="pt-12 border-t border-[#24252b] scroll-mt-24 space-y-10 animate-[rotIn_0.4s_ease]">
+          <div
+            id="collaborate-form"
+            className="pt-12 border-t border-[#24252b] scroll-mt-24 space-y-10 animate-[rotIn_0.4s_ease]"
+          >
             <div className="text-center max-w-2xl mx-auto">
               <h3 className="font-head font-black text-2xl sm:text-4xl uppercase text-white">
                 Collaborate with FitMeet
               </h3>
               <p className="mt-2 text-sm text-[#9a9aa3]">
-                FitMeet hosts and runs every meet. You help power it with your space, your expertise or your brand.
+                FitMeet hosts and runs every meet. You help power it with your space, your expertise
+                or your brand.
               </p>
             </div>
 

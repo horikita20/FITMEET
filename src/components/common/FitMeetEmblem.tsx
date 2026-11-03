@@ -1,4 +1,5 @@
 import React from 'react';
+import { FITMEET_EMBLEM_URL } from '../../lib/brandAssets';
 
 interface FitMeetEmblemProps {
   className?: string;
@@ -27,7 +28,8 @@ export const FitMeetEmblem: React.FC<FitMeetEmblemProps> = ({
         <div
           className="absolute inset-0 rounded-full blur-2xl pointer-events-none -z-10"
           style={{
-            background: 'radial-gradient(circle, rgba(252, 83, 0, 0.4) 0%, rgba(252, 83, 0, 0.1) 50%, transparent 70%)',
+            background:
+              'radial-gradient(circle, rgba(252, 83, 0, 0.4) 0%, rgba(252, 83, 0, 0.1) 50%, transparent 70%)',
           }}
         />
       )}
@@ -40,7 +42,7 @@ export const FitMeetEmblem: React.FC<FitMeetEmblemProps> = ({
       {/* Emblem SVG / Image Graphic */}
       <div className={`relative ${sizeMap[size]} flex items-center justify-center`}>
         <img
-          src="/assets/aistudio/FitMeet_Emblem_original_1_.jpg_3ce53c29.jpeg"
+          src={FITMEET_EMBLEM_URL}
           alt="FitMeet Official Emblem"
           className="w-full h-full object-contain rounded-2xl drop-shadow-[0_0_20px_rgba(252,83,0,0.35)]"
           onError={(e) => {
@@ -53,4 +55,3 @@ export const FitMeetEmblem: React.FC<FitMeetEmblemProps> = ({
     </div>
   );
 };
-

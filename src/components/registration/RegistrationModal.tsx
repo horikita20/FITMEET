@@ -45,9 +45,17 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [gender, setGender] = useState<'Female' | 'Male' | 'Prefer not to say' | 'Self-describe' | ''>('');
+  const [gender, setGender] = useState<
+    'Female' | 'Male' | 'Prefer not to say' | 'Self-describe' | ''
+  >('');
   const [customGender, setCustomGender] = useState('');
   const [instagram, setInstagram] = useState('');
+  const [age, setAge] = useState('');
+  const [area, setArea] = useState('');
+  const [fitnessLevel, setFitnessLevel] = useState<'Beginner' | 'Intermediate' | 'Advanced' | ''>(
+    ''
+  );
+  const [consent, setConsent] = useState(false);
   const [ticketCount, setTicketCount] = useState<number>(1);
 
   // Status & Error Management
@@ -117,6 +125,24 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
       errors.customGender = 'Please describe your gender identification.';
     }
 
+    if (!age.trim()) {
+      errors.age = 'Age is required.';
+    } else if (Number(age) < 10 || Number(age) > 100) {
+      errors.age = 'Please enter a valid age.';
+    }
+
+    if (!area.trim()) {
+      errors.area = 'Area in Patna is required.';
+    }
+
+    if (!fitnessLevel) {
+      errors.fitnessLevel = 'Please select your fitness level.';
+    }
+
+    if (!consent) {
+      errors.consent = 'Please confirm you are in Patna and can attend in person.';
+    }
+
     setFieldErrors(errors);
     if (Object.keys(errors).length > 0) {
       setError('Please fill in all required participant fields.');
@@ -137,7 +163,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
     setLoading(true);
     setError(null);
 
-    const resolvedGender = gender === 'Self-describe' ? `Self-describe: ${customGender.trim()}` : gender;
+    const resolvedGender =
+      gender === 'Self-describe' ? `Self-describe: ${customGender.trim()}` : gender;
 
     try {
       if (isFree) {
@@ -316,230 +343,239 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
           </div>
         )}
 
-        {/* VIEW 1: EVENT DETAILS + REGISTRATION FORM */}
+        {/* VIEW 1: FORM MATCHING THE SECOND REGISTRATION SCREEN */}
         {viewState === 'register' && (
-          <div className="p-5 sm:p-7 space-y-5 max-h-[85vh] overflow-y-auto">
-            {/* 1. Direct Event Details Card (Exact match to user requirement: 'registration pe click krne ke bad sidha aa jayega event ka details aisa') */}
-            <div className="bg-white dark:bg-[#14151a] border border-slate-200 dark:border-[#22242c] rounded-xl p-5 shadow-sm space-y-4">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-slate-100 dark:border-[#1e2027] pb-3">
-                <div className="flex items-center gap-2">
-                  <span className="px-2.5 py-0.5 rounded text-[10px] font-bold uppercase tracking-wider bg-[#FC5300] text-white">
-                    {event.category.replace('_', ' ')}
-                  </span>
-                  <span className="text-xs font-mono text-slate-500 dark:text-neutral-400">
-                    {event.city}
-                  </span>
-                </div>
-
-                <div className="flex items-center gap-2">
-                  <span className="inline-flex items-center gap-1.5 text-xs font-mono font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 px-2.5 py-0.5 rounded border border-emerald-200 dark:border-emerald-800/40">
-                    <span className="h-1.5 w-1.5 rounded-full bg-emerald-500 animate-pulse" />
-                    {event.slotsRemaining} spots left
-                  </span>
-                  <span className="text-xs font-bold text-[#FC5300] bg-[#FC5300]/10 px-2.5 py-0.5 rounded">
-                    {isFree ? '100% Free RSVP' : `₹${(event.priceInPaise / 100).toFixed(0)} Entry`}
-                  </span>
-                </div>
+          <div className="p-5 sm:p-7 max-h-[85vh] overflow-y-auto bg-[#0d1014] text-white">
+            <div className="flex items-center justify-between mb-4">
+              <div className="font-black italic uppercase text-[#FC5300] text-xl sm:text-2xl tracking-[-0.04em]">
+                FITMEET {event.title.match(/#\d+/)?.[0] ?? '#01'}
               </div>
-
-              <div>
-                <h2 className="font-head font-bold text-2xl sm:text-3xl uppercase text-slate-900 dark:text-white leading-tight">
-                  {event.title}
-                </h2>
-                <p className="mt-1.5 text-xs sm:text-sm text-slate-600 dark:text-[#b4b0aa] leading-relaxed line-clamp-2">
-                  {event.description}
-                </p>
-              </div>
-
-              {/* Event Details Grid */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs text-slate-700 dark:text-[#e4e1dc]">
-                <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-[#0c0d11] p-2.5 rounded-lg border border-slate-100 dark:border-[#1a1c22]">
-                  <Calendar className="h-4 w-4 text-[#FC5300] shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-slate-500 dark:text-[#888] uppercase block font-semibold">Date</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">{event.displayDate}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2.5 bg-slate-50 dark:bg-[#0c0d11] p-2.5 rounded-lg border border-slate-100 dark:border-[#1a1c22]">
-                  <Clock className="h-4 w-4 text-[#FC5300] shrink-0" />
-                  <div>
-                    <span className="text-[10px] text-slate-500 dark:text-[#888] uppercase block font-semibold">Time</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">{event.startTime} - {event.endTime}</span>
-                  </div>
-                </div>
-
-                <div className="flex items-start gap-2.5 bg-slate-50 dark:bg-[#0c0d11] p-2.5 rounded-lg border border-slate-100 dark:border-[#1a1c22] sm:col-span-2">
-                  <MapPin className="h-4 w-4 text-[#FC5300] shrink-0 mt-0.5" />
-                  <div>
-                    <span className="text-[10px] text-slate-500 dark:text-[#888] uppercase block font-semibold">Venue</span>
-                    <span className="font-semibold text-slate-900 dark:text-white">To Be Announced</span>
-                  </div>
-                </div>
-              </div>
+              <button
+                onClick={onClose}
+                className="flex h-9 w-9 items-center justify-center rounded-full border border-slate-500/60 bg-[#1d2128] text-slate-200 transition hover:bg-[#2a2d35]"
+                aria-label="Close Registration"
+                type="button"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            {/* 2. Direct Participant RSVP Form */}
-            <form onSubmit={handleSubmit} className="bg-white dark:bg-[#14151a] border border-slate-200 dark:border-[#22242c] rounded-xl p-5 sm:p-6 shadow-sm space-y-4">
-              <div className="border-b border-slate-100 dark:border-[#1e2027] pb-3">
-                <h3 className="font-head font-bold text-lg uppercase text-slate-900 dark:text-white">
-                  Get Pass
-                </h3>
+            <h2 className="mb-6 text-3xl font-black uppercase tracking-[-0.06em] text-white sm:text-5xl">
+              Register Now
+            </h2>
+
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                  Full Name <span className="text-[#FC5300]">*</span>
+                </label>
+                <input
+                  type="text"
+                  value={fullName}
+                  onChange={(e) => setFullName(e.target.value)}
+                  placeholder="Your name"
+                  className={`w-full rounded-xl border bg-[#0d1014] px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none ${
+                    fieldErrors.fullName
+                      ? 'border-red-500'
+                      : 'border-slate-600 focus:border-[#FC5300]'
+                  }`}
+                />
+                {fieldErrors.fullName && (
+                  <span className="mt-1 block text-xs text-red-400">{fieldErrors.fullName}</span>
+                )}
               </div>
 
-              {/* Full Name & Email */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-neutral-300 mb-1">
-                    Full Name <span className="text-[#FC5300]">*</span>
-                  </label>
-                  <input
-                    type="text"
-                    required
-                    value={fullName}
-                    onChange={(e) => setFullName(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
-                      fieldErrors.fullName
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-300 dark:border-[#2a2c36] focus:border-[#FC5300]'
-                    }`}
-                  />
-                  {fieldErrors.fullName && (
-                    <span className="text-[11px] text-red-500 mt-1 block">{fieldErrors.fullName}</span>
-                  )}
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-neutral-300 mb-1">
-                    Email Address <span className="text-[#FC5300]">*</span>
-                  </label>
-                  <input
-                    type="email"
-                    required
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
-                      fieldErrors.email
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-300 dark:border-[#2a2c36] focus:border-[#FC5300]'
-                    }`}
-                  />
-                  {fieldErrors.email && (
-                    <span className="text-[11px] text-red-500 mt-1 block">{fieldErrors.email}</span>
-                  )}
-                </div>
-              </div>
-
-              {/* Phone & Instagram */}
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-neutral-300 mb-1">
-                    Phone / WhatsApp Number <span className="text-[#FC5300]">*</span>
-                  </label>
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                  WhatsApp Number <span className="text-[#FC5300]">*</span>
+                </label>
+                <div
+                  className={`flex items-center overflow-hidden rounded-xl border bg-[#0d1014] ${fieldErrors.phone ? 'border-red-500' : 'border-slate-600 focus-within:border-[#FC5300]'}`}
+                >
+                  <span className="flex h-full items-center border-r border-slate-600 px-4 text-lg text-slate-300">
+                    +91
+                  </span>
                   <input
                     type="tel"
-                    required
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
-                    className={`w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors ${
-                      fieldErrors.phone
-                        ? 'border-red-500 focus:border-red-500'
-                        : 'border-slate-300 dark:border-[#2a2c36] focus:border-[#FC5300]'
+                    placeholder="10-digit number"
+                    className="w-full bg-transparent px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none"
+                  />
+                </div>
+                {fieldErrors.phone && (
+                  <span className="mt-1 block text-xs text-red-400">{fieldErrors.phone}</span>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                  Email ID <span className="text-[#FC5300]">*</span>
+                </label>
+                <input
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="you@example.com"
+                  className={`w-full rounded-xl border bg-[#0d1014] px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none ${
+                    fieldErrors.email ? 'border-red-500' : 'border-slate-600 focus:border-[#FC5300]'
+                  }`}
+                />
+                {fieldErrors.email && (
+                  <span className="mt-1 block text-xs text-red-400">{fieldErrors.email}</span>
+                )}
+              </div>
+
+              <div className="grid gap-5 sm:grid-cols-2">
+                <div>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                    Age <span className="text-[#FC5300]">*</span>
+                  </label>
+                  <input
+                    type="number"
+                    min="10"
+                    max="100"
+                    value={age}
+                    onChange={(e) => setAge(e.target.value)}
+                    placeholder="e.g. 24"
+                    className={`w-full rounded-xl border bg-[#0d1014] px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none ${
+                      fieldErrors.age ? 'border-red-500' : 'border-slate-600 focus:border-[#FC5300]'
                     }`}
                   />
-                  {fieldErrors.phone && (
-                    <span className="text-[11px] text-red-500 mt-1 block">{fieldErrors.phone}</span>
+                  {fieldErrors.age && (
+                    <span className="mt-1 block text-xs text-red-400">{fieldErrors.age}</span>
                   )}
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-neutral-300 mb-1">
-                    Instagram Handle <span className="text-slate-400 font-normal lowercase">(optional)</span>
+                  <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                    Gender <span className="text-[#FC5300]">*</span>
                   </label>
-                  <input
-                    type="text"
-                    value={instagram}
-                    onChange={(e) => setInstagram(e.target.value)}
-                    className="w-full px-3.5 py-2.5 text-xs sm:text-sm bg-slate-50 dark:bg-[#0c0d10] border border-slate-300 dark:border-[#2a2c36] focus:border-[#FC5300] rounded-lg text-slate-900 dark:text-white placeholder-slate-400 dark:placeholder-neutral-600 focus:outline-none transition-colors"
-                  />
+                  <select
+                    value={gender || ''}
+                    onChange={(e) =>
+                      setGender(
+                        e.target.value as
+                          | 'Female'
+                          | 'Male'
+                          | 'Prefer not to say'
+                          | 'Self-describe'
+                          | ''
+                      )
+                    }
+                    className={`w-full appearance-none rounded-xl border bg-[#0d1014] px-4 py-3 text-lg text-white focus:outline-none ${
+                      fieldErrors.gender
+                        ? 'border-red-500'
+                        : 'border-slate-600 focus:border-[#FC5300]'
+                    }`}
+                  >
+                    <option value="" className="bg-[#0d1014] text-slate-300">
+                      Select
+                    </option>
+                    <option value="Female" className="bg-[#0d1014] text-white">
+                      Female
+                    </option>
+                    <option value="Male" className="bg-[#0d1014] text-white">
+                      Male
+                    </option>
+                    <option value="Prefer not to say" className="bg-[#0d1014] text-white">
+                      Prefer not to say
+                    </option>
+                    <option value="Self-describe" className="bg-[#0d1014] text-white">
+                      Self-describe
+                    </option>
+                  </select>
+                  {gender === 'Self-describe' && (
+                    <input
+                      type="text"
+                      value={customGender}
+                      onChange={(e) => setCustomGender(e.target.value)}
+                      placeholder="Tell us how you identify"
+                      className="mt-2 w-full rounded-xl border border-[#FC5300] bg-[#0d1014] px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none"
+                    />
+                  )}
+                  {fieldErrors.gender && (
+                    <span className="mt-1 block text-xs text-red-400">{fieldErrors.gender}</span>
+                  )}
+                  {fieldErrors.customGender && (
+                    <span className="mt-1 block text-xs text-red-400">
+                      {fieldErrors.customGender}
+                    </span>
+                  )}
                 </div>
               </div>
 
-              {/* Gender Selection */}
               <div>
-                <label className="block text-xs font-semibold uppercase tracking-wider text-slate-700 dark:text-neutral-300 mb-1.5">
-                  Gender <span className="text-[#FC5300]">*</span>
+                <label className="mb-2 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                  Area in Patna <span className="text-[#FC5300]">*</span>
                 </label>
-                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                  {(['Female', 'Male', 'Prefer not to say', 'Self-describe'] as const).map((g) => (
-                    <label
-                      key={g}
-                      className={`flex items-center gap-2 p-2.5 rounded-lg border text-xs cursor-pointer transition-colors ${
-                        gender === g
-                          ? 'border-[#FC5300] bg-[#FC5300]/10 text-slate-900 dark:text-white font-semibold'
-                          : 'border-slate-200 dark:border-[#2a2c36] bg-slate-50 dark:bg-[#0c0d10] text-slate-600 dark:text-[#b4b0aa] hover:border-slate-300 dark:hover:border-neutral-700'
+                <input
+                  type="text"
+                  value={area}
+                  onChange={(e) => setArea(e.target.value)}
+                  placeholder="e.g. Boring Road, Kankarbagh"
+                  className={`w-full rounded-xl border bg-[#0d1014] px-4 py-3 text-lg text-white placeholder:text-slate-400 focus:outline-none ${
+                    fieldErrors.area ? 'border-red-500' : 'border-slate-600 focus:border-[#FC5300]'
+                  }`}
+                />
+                {fieldErrors.area && (
+                  <span className="mt-1 block text-xs text-red-400">{fieldErrors.area}</span>
+                )}
+              </div>
+
+              <div>
+                <label className="mb-3 block text-xs font-bold uppercase tracking-[0.12em] text-white">
+                  Fitness Level <span className="text-[#FC5300]">*</span>
+                </label>
+                <div className="grid gap-3 sm:grid-cols-3">
+                  {(['Beginner', 'Intermediate', 'Advanced'] as const).map((level) => (
+                    <button
+                      key={level}
+                      type="button"
+                      onClick={() => setFitnessLevel(level)}
+                      className={`rounded-xl border px-3 py-3 text-base font-bold uppercase tracking-[0.08em] transition ${
+                        fitnessLevel === level
+                          ? 'border-[#FC5300] bg-[#FC5300]/10 text-white'
+                          : 'border-slate-600 bg-transparent text-slate-300 hover:border-slate-500'
                       }`}
                     >
-                      <input
-                        type="radio"
-                        name="gender"
-                        value={g}
-                        checked={gender === g}
-                        onChange={() => setGender(g)}
-                        className="text-[#FC5300] focus:ring-[#FC5300]"
-                      />
-                      <span className="truncate">{g}</span>
-                    </label>
+                      {level}
+                    </button>
                   ))}
                 </div>
-                {gender === 'Self-describe' && (
-                  <input
-                    type="text"
-                    value={customGender}
-                    onChange={(e) => setCustomGender(e.target.value)}
-                    className="mt-2 w-full px-3 py-2 text-xs bg-slate-50 dark:bg-[#0c0d10] border border-[#FC5300] rounded-lg text-slate-900 dark:text-white focus:outline-none"
-                  />
-                )}
-                {fieldErrors.gender && (
-                  <span className="text-[11px] text-red-500 mt-1 block">{fieldErrors.gender}</span>
+                {fieldErrors.fitnessLevel && (
+                  <span className="mt-1 block text-xs text-red-400">
+                    {fieldErrors.fitnessLevel}
+                  </span>
                 )}
               </div>
 
-              {/* Summary & Submit Action */}
-              <div className="pt-3 border-t border-slate-100 dark:border-[#1e2027] space-y-3">
-                <div className="flex items-center justify-between text-xs">
-                  <span className="text-slate-600 dark:text-[#b4b0aa]">Registration Pass Fee:</span>
-                  <span className="font-bold text-slate-900 dark:text-white">
-                    {isFree ? (
-                      <span className="text-[#FC5300] font-mono text-sm">₹0 (100% Free RSVP)</span>
-                    ) : (
-                      <span className="font-mono text-sm">₹{(totalAmountInPaise / 100).toFixed(2)}</span>
-                    )}
+              <div className="rounded-xl border border-[#5d3b2f] bg-[#201914] p-3">
+                <label className="flex cursor-pointer items-start gap-3 text-sm text-slate-200">
+                  <input
+                    type="checkbox"
+                    checked={consent}
+                    onChange={(e) => setConsent(e.target.checked)}
+                    className="mt-1 h-4 w-4 accent-[#FC5300]"
+                  />
+                  <span className="leading-relaxed">
+                    I&apos;m in Patna and can attend in person. I understand the fee won&apos;t be
+                    refunded if I can&apos;t attend.
                   </span>
-                </div>
+                </label>
+                {fieldErrors.consent && (
+                  <span className="mt-2 block text-xs text-red-400">{fieldErrors.consent}</span>
+                )}
+              </div>
 
+              <div className="pt-2">
                 <button
                   type="submit"
                   disabled={loading || event.slotsRemaining <= 0}
-                  className="w-full inline-flex items-center justify-center gap-2 py-3.5 px-6 rounded-lg text-sm font-bold uppercase tracking-wider text-white bg-[#FC5300] hover:bg-[#ff7a2e] disabled:opacity-50 disabled:cursor-not-allowed transition-all transform active:scale-95 cursor-pointer shadow-[0_0_20px_rgba(252,83,0,0.35)]"
+                  className="w-full rounded-xl bg-[#FC5300] px-5 py-3.5 text-sm font-black uppercase tracking-[0.12em] text-white transition hover:bg-[#ff6d1b] disabled:cursor-not-allowed disabled:opacity-60"
                 >
-                  {loading ? (
-                    <span className="inline-flex items-center gap-2">
-                      <span className="h-4 w-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                      <span>Generating Pass...</span>
-                    </span>
-                  ) : (
-                    <>
-                      <span>{isFree ? 'Get Pass' : 'Proceed to Payment'}</span>
-                      <ArrowRight className="h-4 w-4" />
-                    </>
-                  )}
+                  {loading ? 'Generating Pass...' : isFree ? 'Get Pass' : 'Proceed to Payment'}
                 </button>
-
-                <div className="flex items-center justify-center gap-2 text-[11px] text-slate-500 dark:text-neutral-400">
-                  <CheckCircle2 className="h-3.5 w-3.5 text-emerald-500 shrink-0" />
-                  <span>Instant digital ticket • QR code generated on confirmation • Free cancellation</span>
-                </div>
               </div>
             </form>
           </div>
@@ -556,7 +592,8 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 You're In! See You This Sunday!
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-[#b4b0aa] max-w-md mx-auto">
-                Your entry pass has been generated. Show your QR token or Reference ID at the check-in point.
+                Your entry pass has been generated. Show your QR token or Reference ID at the
+                check-in point.
               </p>
             </div>
 
@@ -587,11 +624,15 @@ export const RegistrationModal: React.FC<RegistrationModalProps> = ({
                 </h3>
                 <div className="flex items-center gap-2">
                   <Calendar className="h-3.5 w-3.5 text-[#FC5300] shrink-0" />
-                  <span>{confirmedPass.eventDate} • {confirmedPass.eventTime}</span>
+                  <span>
+                    {confirmedPass.eventDate} • {confirmedPass.eventTime}
+                  </span>
                 </div>
                 <div className="flex items-center gap-2">
                   <MapPin className="h-3.5 w-3.5 text-[#FC5300] shrink-0" />
-                  <span>{confirmedPass.eventVenue}, {confirmedPass.eventCity}</span>
+                  <span>
+                    {confirmedPass.eventVenue}, {confirmedPass.eventCity}
+                  </span>
                 </div>
               </div>
 

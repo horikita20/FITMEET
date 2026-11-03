@@ -36,7 +36,10 @@ export const FaqSection: React.FC = () => {
   };
 
   return (
-    <section id="faqs" className="bg-slate-50 dark:bg-[#0d0d10] border-b border-slate-200 dark:border-[#16171a] py-16 sm:py-20 scroll-mt-20 transition-colors">
+    <section
+      id="faqs"
+      className="bg-slate-50 dark:bg-[#0d0d10] border-b border-slate-200 dark:border-[#16171a] py-16 sm:py-20 scroll-mt-20 transition-colors"
+    >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between gap-2 mb-2">
           <p className="font-head font-semibold text-xs sm:text-sm uppercase tracking-wider text-[#FC5300] flex items-center gap-1.5">

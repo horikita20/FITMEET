@@ -2,6 +2,7 @@ import React from 'react';
 import { Calendar, Clock, MapPin, Users, ArrowRight } from 'lucide-react';
 import { FitnessEvent } from '../../types';
 import { ImageWithFallback } from '../common/ImageWithFallback';
+import { getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface EventCardProps {
   event: FitnessEvent;
@@ -18,9 +19,12 @@ export const EventCard: React.FC<EventCardProps> = ({
 }) => {
   const isComingSoon = event.status === 'coming_soon';
 
-  const spotsPercent = event.registrationCapacity > 0
-    ? Math.round(((event.registrationCapacity - event.slotsRemaining) / event.registrationCapacity) * 100)
-    : 0;
+  const spotsPercent =
+    event.registrationCapacity > 0
+      ? Math.round(
+          ((event.registrationCapacity - event.slotsRemaining) / event.registrationCapacity) * 100
+        )
+      : 0;
 
   // SPECIAL CARD VARIANT FOR "COMING SOON" (Exact match to user's uploaded screenshot)
   if (isComingSoon) {
@@ -47,9 +51,7 @@ export const EventCard: React.FC<EventCardProps> = ({
             <h3 className="font-head font-bold text-2xl uppercase tracking-tight text-slate-900 dark:text-white leading-tight">
               Coming Soon
             </h3>
-            <p className="text-xs text-slate-500 dark:text-[#b4b0aa] mt-1">
-              {event.description}
-            </p>
+            <p className="text-xs text-slate-500 dark:text-[#b4b0aa] mt-1">{event.description}</p>
 
             <div className="mt-5 space-y-3 pt-3 border-t border-slate-100 dark:border-[#1e2027] text-xs">
               <div className="grid grid-cols-2 gap-3">
@@ -111,7 +113,7 @@ export const EventCard: React.FC<EventCardProps> = ({
         <div className="relative aspect-[16/10] w-full overflow-hidden bg-slate-100 dark:bg-[#0c0d10]">
           <ImageWithFallback
             src={event.coverImage}
-            fallbackSrc="/assets/images/hero_runners_dawn.jpg"
+            fallbackSrc={getPublicAssetUrl('assets/images/hero_runners_dawn.jpg')}
             alt={event.title}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
             loading="lazy"
@@ -134,9 +136,7 @@ export const EventCard: React.FC<EventCardProps> = ({
           {event.coHosts && event.coHosts.length > 0 && (
             <div className="absolute inset-x-2 bottom-2 bg-black/85 backdrop-blur-sm px-2.5 py-1 rounded border border-white/10 text-[10px] text-[#ff7a2e] flex items-center gap-1.5 z-10">
               <Users className="h-3 w-3 shrink-0" />
-              <span className="truncate">
-                Co-Host: {event.coHosts[0].organizationName}
-              </span>
+              <span className="truncate">Co-Host: {event.coHosts[0].organizationName}</span>
             </div>
           )}
         </div>
@@ -158,7 +158,9 @@ export const EventCard: React.FC<EventCardProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <Clock className="h-3.5 w-3.5 text-[#FC5300] shrink-0" />
-              <span>{event.startTime} - {event.endTime}</span>
+              <span>
+                {event.startTime} - {event.endTime}
+              </span>
             </div>
             <div className="flex items-start gap-2">
               <MapPin className="h-3.5 w-3.5 text-[#FC5300] shrink-0 mt-0.5" />

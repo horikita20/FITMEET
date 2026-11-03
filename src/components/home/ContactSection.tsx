@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { Mail, Phone, MapPin, Send, CheckCircle2 } from 'lucide-react';
 import { SiteSettings } from '../../types';
+import { submitContactEnquiry } from '../../lib/api';
 
 export const INTEREST_OPTIONS = [
   'Join the Challenge: I’m ready to sweat this Sunday',
@@ -24,6 +25,8 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
   const [interest, setInterest] = useState<string>(initialInterest || INTEREST_OPTIONS[0]);
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+  const [submitting, setSubmitting] = useState(false);
+  const [submissionError, setSubmissionError] = useState<string | null>(null);
 
   useEffect(() => {
     if (initialInterest && INTEREST_OPTIONS.includes(initialInterest)) {
@@ -31,22 +34,40 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
     }
   }, [initialInterest]);
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!name.trim() || !email.trim()) return;
-
-    // Simulate enquiry capture
-    setSubmitted(true);
-    setTimeout(() => {
-      setName('');
-      setEmail('');
-      setPhone('');
-      setMessage('');
-    }, 5000);
+    if (!name.trim() || !email.trim() || submitting) return;
+    setSubmitting(true);
+    setSubmissionError(null);
+    try {
+      await submitContactEnquiry({
+        name: name.trim(),
+        email: email.trim(),
+        phone: phone.trim(),
+        interest,
+        message: message.trim(),
+      });
+      setSubmitted(true);
+      setTimeout(() => {
+        setName('');
+        setEmail('');
+        setPhone('');
+        setMessage('');
+      }, 5000);
+    } catch (error) {
+      setSubmissionError(
+        error instanceof Error ? error.message : 'Unable to send your message. Please try again.'
+      );
+    } finally {
+      setSubmitting(false);
+    }
   };
 
   return (
-    <section id="contact" className="py-16 sm:py-20 border-b border-slate-200 dark:border-[#16171a] bg-white dark:bg-[#0a0a0c] scroll-mt-20 transition-colors">
+    <section
+      id="contact"
+      className="py-16 sm:py-20 border-b border-slate-200 dark:border-[#16171a] bg-white dark:bg-[#0a0a0c] scroll-mt-20 transition-colors"
+    >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 items-start">
           {/* Left info */}
@@ -59,10 +80,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
                 Let's make your <span className="text-[#FC5300]">next move.</span>
               </h2>
               <p className="mt-3 text-sm text-slate-600 dark:text-[#b4b0aa] leading-relaxed max-w-sm">
-                Join our next Sunday challenge, partner with us as a gym or brand, or support our sessions as a coach. Have a question? Drop us a message and we’ll get back within 24 hours.
+                Join our next Sunday challenge, partner with us as a gym or brand, or support our
+                sessions as a coach. Have a question? Drop us a message and we’ll get back within 24
+                hours.
               </p>
             </div>
-
           </div>
 
           {/* Right form */}
@@ -76,8 +98,9 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
                   Message Dispatched!
                 </h3>
                 <p className="text-xs sm:text-sm text-slate-600 dark:text-[#b4b0aa] max-w-sm mx-auto">
-                  Thank you, <strong className="text-slate-900 dark:text-white">{name || 'Athlete'}</strong>. The FitMeet
-                  team will follow up via email within 24 hours.
+                  Thank you,{' '}
+                  <strong className="text-slate-900 dark:text-white">{name || 'Athlete'}</strong>.
+                  The FitMeet team will follow up via email within 24 hours.
                 </p>
                 <button
                   type="button"
@@ -89,6 +112,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
               </div>
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
+                {submissionError && (
+                  <p role="alert" className="text-sm text-red-500">
+                    {submissionError}
+                  </p>
+                )}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block text-[11px] font-bold uppercase tracking-wider text-slate-700 dark:text-[#b4b0aa] mb-1">
@@ -163,10 +191,11 @@ export const ContactSection: React.FC<ContactSectionProps> = ({ settings, initia
 
                 <button
                   type="submit"
+                  disabled={submitting}
                   className="w-full inline-flex items-center justify-center gap-2 px-5 py-3 text-xs sm:text-sm font-bold uppercase tracking-wider text-white bg-[#FC5300] hover:bg-[#ff7a2e] rounded transition-all transform active:scale-95 cursor-pointer shadow-md"
                 >
                   <Send className="h-4 w-4" />
-                  <span>Send Community Message</span>
+                  <span>{submitting ? 'Sending…' : 'Send Community Message'}</span>
                 </button>
               </form>
             )}

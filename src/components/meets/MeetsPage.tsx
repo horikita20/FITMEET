@@ -1,6 +1,16 @@
 import React, { useState } from 'react';
-import { ArrowLeft, ArrowRight, CalendarDays, Clock3, MapPin, Users, Zap, LockKeyhole } from 'lucide-react';
+import {
+  ArrowLeft,
+  ArrowRight,
+  CalendarDays,
+  Clock3,
+  MapPin,
+  Users,
+  Zap,
+  LockKeyhole,
+} from 'lucide-react';
 import { FitnessEvent } from '../../types';
+import { FITMEET_LOGO_URL, getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface MeetsPageProps {
   events: FitnessEvent[];
@@ -16,7 +26,7 @@ const fallbackEvent: FitnessEvent = {
   title: 'FitMeet #01',
   description: '',
   category: 'gym_hiit',
-  coverImage: '/assets/images/hero_runners_dawn.jpg',
+  coverImage: getPublicAssetUrl('assets/images/hero_runners_dawn.jpg'),
   date: 'TBA',
   displayDate: 'A Sunday, very soon',
   startTime: 'To be announced',
@@ -119,7 +129,8 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
   const handleTabKeyDown = (event: React.KeyboardEvent<HTMLButtonElement>, tab: MeetsTab) => {
     if (event.key !== 'ArrowLeft' && event.key !== 'ArrowRight') return;
     event.preventDefault();
-    const nextTab = tabs[(tabs.indexOf(tab) + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
+    const nextTab =
+      tabs[(tabs.indexOf(tab) + (event.key === 'ArrowRight' ? 1 : tabs.length - 1)) % tabs.length];
     setActiveTab(nextTab);
     document.getElementById(`fm-tab-${nextTab}`)?.focus();
   };
@@ -137,14 +148,22 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
             <ArrowLeft className="h-4 w-4 text-[#FC5300]" />
             <span>Back to Home</span>
           </button>
-          <span className="text-[11px] font-mono uppercase tracking-widest text-[#8d8a85]">Official Meets · Patna</span>
+          <span className="text-[11px] font-mono uppercase tracking-widest text-[#8d8a85]">
+            Official Meets · Patna
+          </span>
         </div>
       </div>
 
       <div className="fm-meets-content">
         <section className="fm-hero">
           <div className="fm-hero-inner">
-            <img className="fm-hero-logo" src="/assets/images/fitmeet_logo_master.png" alt="FitMeet logo" width="104" height="98" />
+            <img
+              className="fm-hero-logo"
+              src={FITMEET_LOGO_URL}
+              alt="FitMeet logo"
+              width="104"
+              height="98"
+            />
             <span className="fm-pill">FitMeet · Patna</span>
             <h1 className="fm-hero-title" aria-label="Push your limits. Together.">
               Push your limits.
@@ -157,21 +176,32 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
               </span>
             </h1>
             <p className="fm-lede">
-              Boring Sundays end here. Take on challenges, play and meet people who make your Sunday worth waking up for.
-              Join Patna’s first FitMeet and make this the Sunday lifestyle.
+              Boring Sundays end here. Take on challenges, play and meet people who make your Sunday
+              worth waking up for. Join Patna’s first FitMeet and make this the Sunday lifestyle.
               <b className="fm-lede-cta">Register now. Make your Sunday count.</b>
             </p>
             <div className="fm-facts">
-              <span><CalendarDays aria-hidden="true" />Every Sunday</span>
-              <span><MapPin aria-hidden="true" />Patna, Bihar</span>
-              <span><Users aria-hidden="true" />All fitness levels welcome</span>
+              <span>
+                <CalendarDays aria-hidden="true" />
+                Every Sunday
+              </span>
+              <span>
+                <MapPin aria-hidden="true" />
+                Patna, Bihar
+              </span>
+              <span>
+                <Users aria-hidden="true" />
+                All fitness levels welcome
+              </span>
             </div>
           </div>
         </section>
 
         <main className="fm-main">
           <div className="fm-list-head">
-            <h2 className="fm-section-title">Fit<span>Meets</span></h2>
+            <h2 className="fm-section-title">
+              Fit<span>Meets</span>
+            </h2>
             <div className="fm-tabs" role="tablist" aria-label="Meets">
               {tabs.map((tab) => {
                 const selected = activeTab === tab;
@@ -188,7 +218,8 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
                     onClick={() => setActiveTab(tab)}
                     onKeyDown={(event) => handleTabKeyDown(event, tab)}
                   >
-                    {tab === 'upcoming' ? 'Upcoming' : 'Past'}<b>{tab === 'upcoming' ? '3' : '0'}</b>
+                    {tab === 'upcoming' ? 'Upcoming' : 'Past'}
+                    <b>{tab === 'upcoming' ? '3' : '0'}</b>
                   </button>
                 );
               })}
@@ -205,33 +236,56 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
           >
             <div className="fm-list">
               <article className="fm-card fm-card-next">
-                <div className="fm-number">#<span>01</span></div>
+                <div className="fm-number">
+                  #<span>01</span>
+                </div>
                 <div className="fm-info">
-                  <h3>The first meet<span className="fm-badge">Up first</span></h3>
+                  <h3>
+                    The first meet<span className="fm-badge">Up first</span>
+                  </h3>
                   <div className="fm-meta">
-                    <span className="fm-meta-item"><CalendarDays aria-hidden="true" />Date: <i>A Sunday, very soon</i></span>
-                    <span className="fm-meta-item"><Clock3 aria-hidden="true" />Time: <i>Morning, shared before the meet</i></span>
-                    <span className="fm-meta-item"><MapPin aria-hidden="true" />Venue: <i>Unlocked for the crew first</i></span>
+                    <span className="fm-meta-item">
+                      <CalendarDays aria-hidden="true" />
+                      Date: <i>A Sunday, very soon</i>
+                    </span>
+                    <span className="fm-meta-item">
+                      <Clock3 aria-hidden="true" />
+                      Time: <i>Morning, shared before the meet</i>
+                    </span>
+                    <span className="fm-meta-item">
+                      <MapPin aria-hidden="true" />
+                      Venue: <i>Unlocked for the crew first</i>
+                    </span>
                   </div>
                 </div>
-                <button className="fm-btn" type="button" onClick={() => onJoinMeet(registrationEvent)}>
-                  <span>Register now</span><ArrowRight aria-hidden="true" />
+                <button
+                  className="fm-btn"
+                  type="button"
+                  onClick={() => onJoinMeet(registrationEvent)}
+                >
+                  <span>Register now</span>
+                  <ArrowRight aria-hidden="true" />
                 </button>
               </article>
 
               {[2, 3].map((number) => (
                 <article className="fm-card fm-locked" key={number}>
-                  <div className="fm-number">#<span>{String(number).padStart(2, '0')}</span></div>
+                  <div className="fm-number">
+                    #<span>{String(number).padStart(2, '0')}</span>
+                  </div>
                   <div className="fm-info">
                     <h3>Locked</h3>
-                    <div className="fm-locked-copy">Revealed after #{String(number - 1).padStart(2, '0')}</div>
+                    <div className="fm-locked-copy">
+                      Revealed after #{String(number - 1).padStart(2, '0')}
+                    </div>
                   </div>
                   <LockKeyhole className="fm-lock-icon" aria-hidden="true" />
                 </article>
               ))}
             </div>
             <p className="fm-note">
-              <b>Register only if you&apos;re in Patna.</b> If you register and can&apos;t attend, your fee won&apos;t be refunded.
+              <b>Register only if you&apos;re in Patna.</b> If you register and can&apos;t attend,
+              your fee won&apos;t be refunded.
             </p>
           </section>
 
@@ -246,7 +300,9 @@ export const MeetsPage: React.FC<MeetsPageProps> = ({ events, onNavigateHome, on
             <div className="fm-empty">
               <Zap aria-hidden="true" />
               <h3>No past meets yet</h3>
-              <p>FitMeet #01 will be the first. Photos and highlights show up here after every meet.</p>
+              <p>
+                FitMeet #01 will be the first. Photos and highlights show up here after every meet.
+              </p>
             </div>
           </section>
         </main>

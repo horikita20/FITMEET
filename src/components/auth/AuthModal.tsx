@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import { useAuth } from '../../context/AuthContext';
 import { isSupabaseConfigured } from '../../lib/supabase';
+import { FITMEET_LOGO_URL } from '../../lib/brandAssets';
 
 interface AuthModalProps {
   isOpen: boolean;
@@ -216,8 +217,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
     }
   };
 
-  const passwordsMatch =
-    Boolean(password && confirmPassword) && password === confirmPassword;
+  const passwordsMatch = Boolean(password && confirmPassword) && password === confirmPassword;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md overflow-y-auto animate-fade-in">
@@ -235,7 +235,7 @@ export const AuthModal: React.FC<AuthModalProps> = ({
         <div className="text-center mb-5">
           <div className="inline-flex items-center justify-center mb-2">
             <img
-              src="/assets/images/fitmeet_logo_master.png"
+              src={FITMEET_LOGO_URL}
               alt="FitMeet Patna"
               className="h-7 sm:h-8 w-auto object-contain"
             />
@@ -244,15 +244,15 @@ export const AuthModal: React.FC<AuthModalProps> = ({
             {mode === 'signup'
               ? 'Create Your Account'
               : mode === 'signin'
-              ? 'Welcome Back'
-              : 'Reset Your Password'}
+                ? 'Welcome Back'
+                : 'Reset Your Password'}
           </h2>
           <p className="text-xs text-[#b4b0aa] mt-1 max-w-xs mx-auto">
             {mode === 'signup'
               ? 'Register to join weekly fitness meets, explore partner gyms, and connect with coaches in Patna.'
               : mode === 'signin'
-              ? 'Sign in to access your event passes, bookings, and community meets.'
-              : 'Enter your email to receive password reset instructions.'}
+                ? 'Sign in to access your event passes, bookings, and community meets.'
+                : 'Enter your email to receive password reset instructions.'}
           </p>
 
           {/* Real-time Auth Status Indicator */}
@@ -314,7 +314,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   <li>
                     Add these variables to your <strong>.env</strong> file:
                     <div className="mt-1 p-2 bg-black rounded border border-[#222] font-mono text-[10px] text-neutral-300 select-all">
-                      VITE_SUPABASE_URL=https://xyzcompany.supabase.co<br />
+                      VITE_SUPABASE_URL=https://xyzcompany.supabase.co
+                      <br />
                       VITE_SUPABASE_ANON_KEY=eyJhbGciOi...
                     </div>
                   </li>
@@ -581,8 +582,8 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                         fieldErrors.confirmPassword
                           ? 'border-red-500'
                           : passwordsMatch
-                          ? 'border-emerald-600/60'
-                          : 'border-[#25272c]'
+                            ? 'border-emerald-600/60'
+                            : 'border-[#25272c]'
                       } focus:border-[#FC5300] rounded-lg text-white placeholder-neutral-600 focus:outline-none transition-colors`}
                     />
                     <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-neutral-500 pointer-events-none" />
@@ -651,10 +652,10 @@ export const AuthModal: React.FC<AuthModalProps> = ({
                   {loading
                     ? 'Processing...'
                     : mode === 'signup'
-                    ? 'Create Account'
-                    : mode === 'signin'
-                    ? 'Sign In'
-                    : 'Send Reset Link'}
+                      ? 'Create Account'
+                      : mode === 'signin'
+                        ? 'Sign In'
+                        : 'Send Reset Link'}
                 </span>
                 {!loading && <ArrowRight className="h-4 w-4" />}
               </button>

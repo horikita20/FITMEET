@@ -1,22 +1,14 @@
 import React, { useState, useEffect, useRef } from 'react';
-import {
-  Play,
-  Pause,
-  RotateCcw,
-  Volume2,
-  VolumeX,
-  X,
-  ArrowRight,
-} from 'lucide-react';
+import { Play, Pause, RotateCcw, Volume2, VolumeX, X, ArrowRight } from 'lucide-react';
+import { FITMEET_EMBLEM_URL, getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface FitMeetVideoModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onJoinClick: () => void;
+  onJoinClick?: () => void;
 }
 
-const VIDEO_SRC =
-  '/assets/aistudio/WhatsApp_Video_2026-10-28_at_02.08.08_0cccb211.mp4';
+const VIDEO_SRC = getPublicAssetUrl('assets/aistudio/fitmeet-home-video.mp4');
 
 export const FitMeetVideoModal: React.FC<FitMeetVideoModalProps> = ({
   isOpen,
@@ -114,7 +106,7 @@ export const FitMeetVideoModal: React.FC<FitMeetVideoModalProps> = ({
         <div className="flex items-center justify-between px-4 sm:px-6 py-3 border-b border-[#26262b] bg-[#070709]">
           <div className="flex items-center gap-3">
             <img
-              src="/assets/aistudio/FitMeet_Emblem_original_1_.jpg_3ce53c29.jpeg"
+              src={FITMEET_EMBLEM_URL}
               alt="FitMeet Emblem"
               className="h-7 w-7 rounded-full object-cover border border-[#FC5300]/40"
             />
@@ -234,18 +226,20 @@ export const FitMeetVideoModal: React.FC<FitMeetVideoModalProps> = ({
               </button>
             </div>
 
-            <div className="flex items-center gap-2">
-              <button
-                onClick={() => {
-                  onClose();
-                  onJoinClick();
-                }}
-                className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-[#FC5300] hover:bg-[#ff7a2e] rounded-md transition-all cursor-pointer shadow-sm"
-              >
-                <span>Join The Meet</span>
-                <ArrowRight className="h-3.5 w-3.5" />
-              </button>
-            </div>
+            {onJoinClick && (
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    onClose();
+                    onJoinClick();
+                  }}
+                  className="inline-flex items-center gap-1.5 px-4 py-2 text-xs font-bold uppercase tracking-wider text-white bg-[#FC5300] hover:bg-[#ff7a2e] rounded-md transition-all cursor-pointer shadow-sm"
+                >
+                  <span>Join The Meet</span>
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>

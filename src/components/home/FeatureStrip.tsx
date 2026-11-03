@@ -299,8 +299,20 @@ export const FeatureStrip: React.FC = () => {
                 strokeLinecap="round"
               />
               <rect x="9.5" y="20" width="9" height="13" rx="3.5" fill="#ff5a1f" />
-              <path d="M11 23L9 30" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" />
-              <path d="M17 23L19 30" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round">
+              <path
+                d="M11 23L9 30"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M17 23L19 30"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              >
                 <animate
                   attributeName="d"
                   values="M17 23L19 30;M17 23L20 9;M17 23L20 9;M17 23L19 30"
@@ -335,8 +347,20 @@ export const FeatureStrip: React.FC = () => {
                 strokeLinecap="round"
               />
               <rect x="29.5" y="20" width="9" height="13" rx="3.5" fill="#ffb37a" />
-              <path d="M37 23L39 30" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round" />
-              <path d="M31 23L29 30" fill="none" stroke="#fff" strokeWidth="3.2" strokeLinecap="round">
+              <path
+                d="M37 23L39 30"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              />
+              <path
+                d="M31 23L29 30"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="3.2"
+                strokeLinecap="round"
+              >
                 <animate
                   attributeName="d"
                   values="M31 23L29 30;M31 23L28 9;M31 23L28 9;M31 23L29 30"
@@ -380,8 +404,22 @@ export const FeatureStrip: React.FC = () => {
                 dur="1.4s"
                 repeatCount="indefinite"
               />
-              <rect x="7" y="6" width="2.5" height="2.5" fill="#ff5a1f" transform="rotate(20 8 7)" />
-              <rect x="39" y="8" width="2.5" height="2.5" fill="#fff" transform="rotate(-25 40 9)" />
+              <rect
+                x="7"
+                y="6"
+                width="2.5"
+                height="2.5"
+                fill="#ff5a1f"
+                transform="rotate(20 8 7)"
+              />
+              <rect
+                x="39"
+                y="8"
+                width="2.5"
+                height="2.5"
+                fill="#fff"
+                transform="rotate(-25 40 9)"
+              />
               <rect x="11" y="18" width="2" height="2" fill="#ffb37a" />
               <rect x="36" y="20" width="2" height="2" fill="#ff5a1f" />
               <circle cx="33" cy="3" r="1.2" fill="#ffb37a" />
@@ -453,7 +491,12 @@ export const FeatureStrip: React.FC = () => {
                 strokeWidth="1.4"
                 strokeLinecap="round"
               >
-                <animate attributeName="opacity" values="1;0;1" dur=".7s" repeatCount="indefinite" />
+                <animate
+                  attributeName="opacity"
+                  values="1;0;1"
+                  dur=".7s"
+                  repeatCount="indefinite"
+                />
               </path>
             </g>
           </svg>
@@ -540,7 +583,13 @@ export const FeatureStrip: React.FC = () => {
                 dur="3s"
                 repeatCount="indefinite"
               />
-              <path d="M23 41l-1.5 3.5M25 41l1.5 3.5" fill="none" stroke="#fff" strokeWidth="1.6" strokeLinecap="round">
+              <path
+                d="M23 41l-1.5 3.5M25 41l1.5 3.5"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="1.6"
+                strokeLinecap="round"
+              >
                 <animate
                   attributeName="d"
                   dur=".5s"
@@ -624,7 +673,13 @@ export const FeatureStrip: React.FC = () => {
                 dur="3.5s"
                 repeatCount="indefinite"
               />
-              <path d="M-.6 0l-1.2 3M.6 0l1.2 3" fill="none" stroke="#fff" strokeWidth="1.3" strokeLinecap="round">
+              <path
+                d="M-.6 0l-1.2 3M.6 0l1.2 3"
+                fill="none"
+                stroke="#fff"
+                strokeWidth="1.3"
+                strokeLinecap="round"
+              >
                 <animate
                   attributeName="d"
                   dur=".5s"

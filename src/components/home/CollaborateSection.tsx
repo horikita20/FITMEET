@@ -20,7 +20,12 @@ const CollaborateIllustration: React.FC = () => (
     </defs>
     <rect width="360" height="360" rx="38" fill="#0b0b0d" />
     <circle cx="180" cy="188" r="155" fill="url(#collab-glow)" />
-    <path d="M151 62v-22M119 77L103 61M211 77l16-16" stroke="#777276" strokeWidth="8" strokeLinecap="round" />
+    <path
+      d="M151 62v-22M119 77L103 61M211 77l16-16"
+      stroke="#777276"
+      strokeWidth="8"
+      strokeLinecap="round"
+    />
 
     <ellipse cx="181" cy="306" rx="94" ry="12" fill="#000" opacity=".65" />
 
@@ -31,7 +36,17 @@ const CollaborateIllustration: React.FC = () => (
       <rect x="64" y="126" width="31" height="40" rx="4" fill="#f3a66d" />
       <path d="M268 118h3v48h-3z" fill="#b9b3b0" />
       <rect x="247" y="83" width="111" height="39" rx="20" fill="#161518" stroke="#71351f" />
-      <text x="302" y="108" textAnchor="middle" fill="#ff6a2a" fontSize="16" fontWeight="800" letterSpacing="1.2">FITMEET</text>
+      <text
+        x="302"
+        y="108"
+        textAnchor="middle"
+        fill="#ff6a2a"
+        fontSize="16"
+        fontWeight="800"
+        letterSpacing="1.2"
+      >
+        FITMEET
+      </text>
     </g>
 
     <g>
@@ -58,7 +73,17 @@ const CollaborateIllustration: React.FC = () => (
     </g>
 
     <rect x="19" y="209" width="135" height="40" rx="20" fill="#101216" stroke="#1b5267" />
-    <text x="86" y="235" textAnchor="middle" fill="#42bce9" fontSize="16" fontWeight="800" letterSpacing="1">YOUR BRAND</text>
+    <text
+      x="86"
+      y="235"
+      textAnchor="middle"
+      fill="#42bce9"
+      fontSize="16"
+      fontWeight="800"
+      letterSpacing="1"
+    >
+      YOUR BRAND
+    </text>
     <path d="M46 229h-8" stroke="#42bce9" strokeWidth="2" />
     <path d="M110 109l9 8" stroke="#f3a66d" strokeWidth="3" />
     <path d="M235 127l11-8" stroke="#ff5a1f" strokeWidth="3" />

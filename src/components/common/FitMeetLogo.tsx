@@ -1,4 +1,5 @@
 import React from 'react';
+import { FITMEET_LOGO_URL } from '../../lib/brandAssets';
 
 interface FitMeetLogoProps {
   className?: string;
@@ -22,7 +23,7 @@ export const FitMeetLogo: React.FC<FitMeetLogoProps> = ({
     <div className={`inline-flex flex-col select-none ${className}`}>
       {/* Exact Brand Master Logo Image Provided by User */}
       <img
-        src="/assets/images/fitmeet_logo_master.png"
+        src={FITMEET_LOGO_URL}
         alt="FitMeet"
         className={`${sizeClasses[size]} w-auto object-contain object-left`}
         loading="eager"
@@ -50,4 +51,3 @@ export const FitMeetLogo: React.FC<FitMeetLogoProps> = ({
     </div>
   );
 };
-

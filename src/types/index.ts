@@ -1,4 +1,4 @@
-export type UserRole = 'customer' | 'organizer' | 'super_admin';
+export type UserRole = 'user' | 'admin';
 
 export interface UserProfile {
   id: string;
@@ -103,12 +103,7 @@ export interface FitnessEvent {
   createdAt: string;
 }
 
-export type PaymentStatus =
-  | 'free'
-  | 'pending_payment'
-  | 'paid'
-  | 'failed'
-  | 'refunded';
+export type PaymentStatus = 'free' | 'pending_payment' | 'paid' | 'failed' | 'refunded';
 
 export interface EventRegistration {
   id: string;

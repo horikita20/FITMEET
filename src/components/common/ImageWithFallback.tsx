@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Dumbbell } from 'lucide-react';
+import { getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElement> {
   src: string;
@@ -10,7 +11,7 @@ interface ImageWithFallbackProps extends React.ImgHTMLAttributes<HTMLImageElemen
 
 export const ImageWithFallback: React.FC<ImageWithFallbackProps> = ({
   src,
-  fallbackSrc = '/assets/images/hero_runners_dawn.jpg',
+  fallbackSrc = getPublicAssetUrl('assets/images/hero_runners_dawn.jpg'),
   alt,
   className = '',
   loading = 'lazy',

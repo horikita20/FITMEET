@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { X, ArrowRight, CheckCircle2, MessageCircle, Sparkles, MapPin, Calendar, Clock, AlertCircle } from 'lucide-react';
+import {
+  X,
+  ArrowRight,
+  CheckCircle2,
+  MessageCircle,
+  Sparkles,
+  MapPin,
+  Calendar,
+  Clock,
+  AlertCircle,
+} from 'lucide-react';
 import { FitnessEvent } from '../../types';
 import { submitWaitlist } from '../../lib/api';
 
@@ -87,7 +97,8 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                 <span className="text-[#00A3FF]">💙</span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-[#b4b0aa] max-w-sm mx-auto leading-relaxed">
-                We just wrapped up an incredible run, and we're already working on the next experience. Event details, date, location, and registrations will be announced soon.
+                We just wrapped up an incredible run, and we're already working on the next
+                experience. Event details, date, location, and registrations will be announced soon.
               </p>
             </div>
 
@@ -236,7 +247,8 @@ export const WaitlistModal: React.FC<WaitlistModalProps> = ({
                 <span className="text-[#00A3FF]">💙</span>
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 dark:text-[#b4b0aa] max-w-sm mx-auto leading-relaxed">
-                We just wrapped up an incredible run, and we're already working on the next experience. Event details, date, location, and registrations will be announced soon.
+                We just wrapped up an incredible run, and we're already working on the next
+                experience. Event details, date, location, and registrations will be announced soon.
               </p>
             </div>
 

@@ -3,6 +3,7 @@ import { Calendar, Clock, MapPin, ArrowRight, Flame, Sparkles } from 'lucide-rea
 import { FitnessEvent } from '../../types';
 import { ImageWithFallback } from '../common/ImageWithFallback';
 import { EventCard } from '../events/EventCard';
+import { getPublicAssetUrl } from '../../lib/brandAssets';
 
 interface FeaturedEventBannerProps {
   event: FitnessEvent;
@@ -27,7 +28,8 @@ const CountdownTimer = memo(() => {
         if (prev.seconds > 0) return { ...prev, seconds: prev.seconds - 1 };
         if (prev.minutes > 0) return { ...prev, minutes: 59, seconds: 59 };
         if (prev.hours > 0) return { ...prev, hours: prev.hours - 1, minutes: 59, seconds: 59 };
-        if (prev.days > 0) return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
+        if (prev.days > 0)
+          return { ...prev, days: prev.days - 1, hours: 23, minutes: 59, seconds: 59 };
         return prev;
       });
     }, 1000);
@@ -37,30 +39,42 @@ const CountdownTimer = memo(() => {
   const pad = (n: number) => String(n).padStart(2, '0');
 
   return (
-    <div className="grid grid-cols-4 sm:flex gap-2 sm:gap-2.5 w-full sm:w-auto" role="timer" aria-label="Countdown to event">
+    <div
+      className="grid grid-cols-4 sm:flex gap-2 sm:gap-2.5 w-full sm:w-auto"
+      role="timer"
+      aria-label="Countdown to event"
+    >
       <div className="py-2 px-1 text-center bg-slate-100 dark:bg-[#0a0a0c] border border-slate-200 dark:border-[#34363c] rounded-md sm:w-16">
         <span className="block font-head font-bold text-xl sm:text-2xl text-slate-900 dark:text-white font-mono tabular-nums leading-none">
           {pad(timeLeft.days)}
         </span>
-        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">Days</span>
+        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">
+          Days
+        </span>
       </div>
       <div className="py-2 px-1 text-center bg-slate-100 dark:bg-[#0a0a0c] border border-slate-200 dark:border-[#34363c] rounded-md sm:w-16">
         <span className="block font-head font-bold text-xl sm:text-2xl text-slate-900 dark:text-white font-mono tabular-nums leading-none">
           {pad(timeLeft.hours)}
         </span>
-        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">Hours</span>
+        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">
+          Hours
+        </span>
       </div>
       <div className="py-2 px-1 text-center bg-slate-100 dark:bg-[#0a0a0c] border border-slate-200 dark:border-[#34363c] rounded-md sm:w-16">
         <span className="block font-head font-bold text-xl sm:text-2xl text-[#FC5300] font-mono tabular-nums leading-none">
           {pad(timeLeft.minutes)}
         </span>
-        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">Mins</span>
+        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">
+          Mins
+        </span>
       </div>
       <div className="py-2 px-1 text-center bg-slate-100 dark:bg-[#0a0a0c] border border-slate-200 dark:border-[#34363c] rounded-md sm:w-16">
         <span className="block font-head font-bold text-xl sm:text-2xl text-slate-900 dark:text-white font-mono tabular-nums leading-none">
           {pad(timeLeft.seconds)}
         </span>
-        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">Secs</span>
+        <span className="block text-[9px] sm:text-[10px] uppercase text-slate-500 dark:text-[#b4b0aa] mt-1">
+          Secs
+        </span>
       </div>
     </div>
   );
@@ -76,7 +90,10 @@ export const FeaturedEventBanner: React.FC<FeaturedEventBannerProps> = ({
   onExploreAllClick,
 }) => {
   return (
-    <section id="events" className="bg-slate-50/70 dark:bg-[#0c0c0f] border-y border-slate-200 dark:border-[#16171a] py-14 sm:py-20 scroll-mt-20 transition-colors">
+    <section
+      id="events"
+      className="bg-slate-50/70 dark:bg-[#0c0c0f] border-y border-slate-200 dark:border-[#16171a] py-14 sm:py-20 scroll-mt-20 transition-colors"
+    >
       <div className="mx-auto max-w-[1200px] px-4 sm:px-6">
         {/* Section Header */}
         <div className="mb-8">
@@ -99,13 +116,15 @@ export const FeaturedEventBanner: React.FC<FeaturedEventBannerProps> = ({
             <div className="lg:col-span-5 relative rounded-xl overflow-hidden border border-slate-200 dark:border-[#25272c] bg-slate-100 dark:bg-[#0c0d10] aspect-[16/10] sm:aspect-[4/3] shadow-lg">
               <ImageWithFallback
                 src={event.coverImage}
-                fallbackSrc="/assets/images/hero_runners_dawn.jpg"
+                fallbackSrc={getPublicAssetUrl('assets/images/hero_runners_dawn.jpg')}
                 alt={event.title}
                 className="w-full h-full object-cover"
                 loading="lazy"
               />
               <div className="absolute top-3 left-3 bg-[#FC5300] text-white text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded shadow-md z-10">
-                {event.priceInPaise === 0 ? 'Free RSVP' : `₹${(event.priceInPaise / 100).toFixed(0)} Entry`}
+                {event.priceInPaise === 0
+                  ? 'Free RSVP'
+                  : `₹${(event.priceInPaise / 100).toFixed(0)} Entry`}
               </div>
               <div className="absolute top-3 right-3 bg-black/80 backdrop-blur-md text-[10px] text-white font-mono px-2 py-0.5 rounded border border-white/20 z-10">
                 {event.city}
@@ -135,18 +154,26 @@ export const FeaturedEventBanner: React.FC<FeaturedEventBannerProps> = ({
                   </li>
                   <li className="flex items-center gap-2.5">
                     <Clock className="h-4 w-4 text-[#FC5300] shrink-0" />
-                    <span>{event.startTime} - {event.endTime} ({event.timezone})</span>
+                    <span>
+                      {event.startTime} - {event.endTime} ({event.timezone})
+                    </span>
                   </li>
                   <li className="flex items-start gap-2.5">
                     <MapPin className="h-4 w-4 text-[#FC5300] shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{event.venue}, {event.city}</span>
+                    <span className="line-clamp-2">
+                      {event.venue}, {event.city}
+                    </span>
                   </li>
                 </ul>
 
                 {event.coHosts && event.coHosts.length > 0 && (
                   <div className="mt-3.5 flex items-center gap-2 text-xs text-slate-600 dark:text-[#b4b0aa] bg-slate-100 dark:bg-[#16181d] px-3 py-1.5 rounded-lg border border-slate-200 dark:border-[#25272c]">
-                    <span className="font-semibold text-slate-900 dark:text-white">Co-Hosted with:</span>
-                    <span className="text-[#FC5300] dark:text-[#ff7a2e]">{event.coHosts.map((ch: any) => ch.organizationName).join(', ')}</span>
+                    <span className="font-semibold text-slate-900 dark:text-white">
+                      Co-Hosted with:
+                    </span>
+                    <span className="text-[#FC5300] dark:text-[#ff7a2e]">
+                      {event.coHosts.map((ch: any) => ch.organizationName).join(', ')}
+                    </span>
                   </div>
                 )}
               </div>

@@ -7,11 +7,7 @@ interface BottomNavProps {
   onOpenProfile: () => void;
 }
 
-export const BottomNav: React.FC<BottomNavProps> = ({
-  currentView,
-  onNavigate,
-  onOpenProfile,
-}) => {
+export const BottomNav: React.FC<BottomNavProps> = ({ currentView, onNavigate, onOpenProfile }) => {
   const isHome = currentView === 'home';
   const isMeets = currentView === 'meets' || currentView === 'discover' || currentView === 'events';
   const isCommunity = currentView === 'collaborate';

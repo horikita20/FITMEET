@@ -1,6 +1,7 @@
 import React from 'react';
 import { Instagram, Facebook, MessageCircle, FileDown } from 'lucide-react';
 import { SiteSettings } from '../../types';
+import { FITMEET_LOGO_URL } from '../../lib/brandAssets';
 
 interface FooterProps {
   settings: SiteSettings;
@@ -26,7 +27,7 @@ export const Footer: React.FC<FooterProps> = ({ settings, onNavigate, onOpenLega
             >
               <div className="bg-black px-2 py-1.5 rounded-lg border border-neutral-800 flex items-center justify-center">
                 <img
-                  src="/assets/images/fitmeet_logo_master.png"
+                  src={FITMEET_LOGO_URL}
                   alt="FitMeet"
                   className="h-6 sm:h-7 w-auto object-contain"
                 />

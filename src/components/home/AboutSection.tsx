@@ -8,7 +8,10 @@ interface AboutSectionProps {
 
 export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMoreClick }) => {
   return (
-    <section id="about" className="py-20 sm:py-28 border-b border-[#16171a] bg-[#0a0a0c] text-[#f5f2ee] scroll-mt-20">
+    <section
+      id="about"
+      className="py-20 sm:py-28 border-b border-[#16171a] bg-[#0a0a0c] text-[#f5f2ee] scroll-mt-20"
+    >
       <div className="mx-auto max-w-[1240px] px-4 sm:px-8">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-16 items-center">
           {/* Left Text Column */}
@@ -28,11 +31,13 @@ export const AboutSection: React.FC<AboutSectionProps> = ({ onLearnMoreClick }) 
 
             {/* Story Paragraphs */}
             <p className="mt-6 text-sm sm:text-base lg:text-lg text-[#c9c9cf] leading-relaxed">
-              FitMeet turns your Sunday morning into a fitness game. Every week, we meet at a new gym or outdoor spot in Patna for team challenges, fun games and good company.
+              FitMeet turns your Sunday morning into a fitness game. Every week, we meet at a new
+              gym or outdoor spot in Patna for team challenges, fun games and good company.
             </p>
 
             <p className="mt-4 text-sm sm:text-base lg:text-lg text-[#c9c9cf] leading-relaxed">
-              Warm up together, play as a team, grab snacks and goodies, and cheer each other on. Come solo, leave with a crew.
+              Warm up together, play as a team, grab snacks and goodies, and cheer each other on.
+              Come solo, leave with a crew.
             </p>
 
             {/* CTA Button: JOIN THE CREW → */}

@@ -1,5 +1,18 @@
 import React, { useState } from 'react';
-import { Plus, Calendar, Clock, MapPin, Users, Download, CreditCard, Check, ArrowRight, Eye, Briefcase, FileSpreadsheet } from 'lucide-react';
+import {
+  Plus,
+  Calendar,
+  Clock,
+  MapPin,
+  Users,
+  Download,
+  CreditCard,
+  Check,
+  ArrowRight,
+  Eye,
+  Briefcase,
+  FileSpreadsheet,
+} from 'lucide-react';
 import { FitnessEvent, Organization, EventRegistration } from '../../types';
 import { createEvent } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
@@ -218,7 +231,9 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                     </div>
                     <div className="flex items-center gap-2">
                       <Clock className="h-3.5 w-3.5 text-[#FC5300]" />
-                      <span>{ev.startTime} - {ev.endTime}</span>
+                      <span>
+                        {ev.startTime} - {ev.endTime}
+                      </span>
                     </div>
                     <div className="flex items-center gap-2">
                       <MapPin className="h-3.5 w-3.5 text-[#FC5300]" />
@@ -235,7 +250,11 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
 
                 <div className="mt-5 pt-3 border-t border-[#25272c] flex items-center justify-between text-xs">
                   <span className="text-[#b4b0aa]">
-                    Capacity: <strong className="text-white">{ev.registrationCapacity - ev.slotsRemaining}</strong> / {ev.registrationCapacity}
+                    Capacity:{' '}
+                    <strong className="text-white">
+                      {ev.registrationCapacity - ev.slotsRemaining}
+                    </strong>{' '}
+                    / {ev.registrationCapacity}
                   </span>
 
                   <button
@@ -307,10 +326,14 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                   ) : (
                     eventRegistrations.map((reg) => (
                       <tr key={reg.id} className="hover:bg-[#16181d]/50">
-                        <td className="py-3 font-mono font-bold text-[#FC5300]">{reg.referenceId}</td>
+                        <td className="py-3 font-mono font-bold text-[#FC5300]">
+                          {reg.referenceId}
+                        </td>
                         <td className="py-3 font-semibold text-white">
                           {reg.fullName}
-                          <span className="block text-[11px] text-[#b4b0aa] font-normal">{reg.email}</span>
+                          <span className="block text-[11px] text-[#b4b0aa] font-normal">
+                            {reg.email}
+                          </span>
                         </td>
                         <td className="py-3 font-mono text-neutral-300">{reg.phone}</td>
                         <td className="py-3 text-neutral-400">{reg.emergencyContact}</td>
@@ -339,7 +362,8 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
               Publish a Fitness Event
             </h2>
             <p className="text-xs text-[#b4b0aa] mb-6">
-              Create an official event listing. You can invite other gyms, coaches, or brands to co-host.
+              Create an official event listing. You can invite other gyms, coaches, or brands to
+              co-host.
             </p>
 
             <form onSubmit={handleCreateSubmit} className="space-y-4">
@@ -400,7 +424,14 @@ export const OrganizerDashboard: React.FC<OrganizerDashboardProps> = ({
                     value={date}
                     onChange={(e) => {
                       setDate(e.target.value);
-                      setDisplayDate(new Date(e.target.value).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }));
+                      setDisplayDate(
+                        new Date(e.target.value).toLocaleDateString('en-US', {
+                          weekday: 'short',
+                          month: 'short',
+                          day: 'numeric',
+                          year: 'numeric',
+                        })
+                      );
                     }}
                     className="w-full px-3 py-2 text-sm bg-[#0a0a0c] border border-[#25272c] focus:border-[#FC5300] rounded-lg text-white focus:outline-none"
                   />

@@ -49,9 +49,7 @@ export const CollaboratePage: React.FC = () => {
   const [submitting, setSubmitting] = useState(false);
 
   const toggleSupport = (val: string) => {
-    setSupport((prev) =>
-      prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]
-    );
+    setSupport((prev) => (prev.includes(val) ? prev.filter((s) => s !== val) : [...prev, val]));
   };
 
   const scrollToSection = (id: string) => {
@@ -97,7 +95,11 @@ export const CollaboratePage: React.FC = () => {
       .filter(Boolean)
       .join('\n');
 
-    window.open('https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text), '_blank', 'noopener');
+    window.open(
+      'https://wa.me/' + WA_NUMBER + '?text=' + encodeURIComponent(text),
+      '_blank',
+      'noopener'
+    );
     setSubmitting(true);
     try {
       await submitCollaborationEnquiry({
@@ -110,7 +112,9 @@ export const CollaboratePage: React.FC = () => {
       });
       setSuccess(true);
     } catch (submitError) {
-      setError(submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.');
+      setError(
+        submitError instanceof Error ? submitError.message : 'Unable to save collaboration enquiry.'
+      );
     } finally {
       setSubmitting(false);
     }
@@ -128,7 +132,8 @@ export const CollaboratePage: React.FC = () => {
             Collaborate <span className="block text-[#ff5a00]">with us</span>
           </h1>
           <p className="max-w-[560px] text-base sm:text-lg text-[#d0d1d6] leading-relaxed mb-8">
-            FitMeet hosts and runs every meet. You help power it with your space, your expertise or your brand, and reach Patna’s fitness community from day one.
+            FitMeet hosts and runs every meet. You help power it with your space, your expertise or
+            your brand, and reach Patna’s fitness community from day one.
           </p>
           <div className="flex flex-wrap gap-3.5">
             <button
@@ -148,7 +153,10 @@ export const CollaboratePage: React.FC = () => {
       </section>
 
       {/* ================= WAYS TO HELP ================= */}
-      <section className="bg-[#0f1013] py-16 border-b border-[#1c1d22]" aria-label="Ways to collaborate">
+      <section
+        className="bg-[#0f1013] py-16 border-b border-[#1c1d22]"
+        aria-label="Ways to collaborate"
+      >
         <div className="mx-auto max-w-[1120px] px-4 sm:px-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
           <div className="border-t-2 border-[#ff5a00] pt-4.5">
             <div className="text-[#ff5a00] font-head font-bold text-sm">01</div>
@@ -216,13 +224,18 @@ export const CollaboratePage: React.FC = () => {
                 Founding collaborator perks
               </div>
               <h2 className="font-head font-black text-3xl sm:text-5xl text-white uppercase leading-none mt-3">
-                Join early.<br />Grow with the crew.
+                Join early.
+                <br />
+                Grow with the crew.
               </h2>
             </div>
             <div className="lg:col-span-7">
               <ul className="bg-[#0b0b0d] rounded-xl p-6 sm:p-7 space-y-4">
                 {COLLABORATOR_PERKS.map((perk) => (
-                  <li key={perk} className="flex items-start gap-3 text-sm sm:text-base text-[#e6e7ea]">
+                  <li
+                    key={perk}
+                    className="flex items-start gap-3 text-sm sm:text-base text-[#e6e7ea]"
+                  >
                     <Check className="h-4 w-4 text-[#ff5a00] stroke-[3] shrink-0 mt-1" />
                     <span>{perk}</span>
                   </li>
@@ -245,7 +258,8 @@ export const CollaboratePage: React.FC = () => {
                 Let’s power the <span className="text-[#ff5a00] block">next meet.</span>
               </h2>
               <p className="text-sm sm:text-base text-[#d0d1d6] leading-relaxed mb-4">
-                Tell us who you are and how you’d like to help. Our team reviews every request and gets back to you within 48 hours.
+                Tell us who you are and how you’d like to help. Our team reviews every request and
+                gets back to you within 48 hours.
               </p>
               <p className="text-sm text-[#8a8b93]">
                 Prefer to talk?{' '}
@@ -256,7 +270,10 @@ export const CollaboratePage: React.FC = () => {
             </div>
 
             <div className="lg:col-span-7">
-              <form onSubmit={handleSubmit} className="bg-[#121317] border border-[#24252b] rounded-2xl p-6 sm:p-8 space-y-5">
+              <form
+                onSubmit={handleSubmit}
+                className="bg-[#121317] border border-[#24252b] rounded-2xl p-6 sm:p-8 space-y-5"
+              >
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
                     <label className="block font-head font-bold text-xs uppercase tracking-wider text-[#d7d8dd] mb-2">
@@ -283,13 +300,17 @@ export const CollaboratePage: React.FC = () => {
                     >
                       <option value="">Choose one</option>
                       <option value="Gym / studio">Gym / studio</option>
-                      <option value="Yoga, dance or Zumba studio">Yoga, dance or Zumba studio</option>
+                      <option value="Yoga, dance or Zumba studio">
+                        Yoga, dance or Zumba studio
+                      </option>
                       <option value="Coach / trainer">Coach / trainer</option>
                       <option value="Fitness or nutrition brand">Fitness or nutrition brand</option>
                       <option value="Sportswear or sports store">Sportswear or sports store</option>
                       <option value="Café / juice bar">Café / juice bar</option>
                       <option value="Physio / sports clinic">Physio / sports clinic</option>
-                      <option value="Photographer / videographer">Photographer / videographer</option>
+                      <option value="Photographer / videographer">
+                        Photographer / videographer
+                      </option>
                       <option value="Creator / influencer">Creator / influencer</option>
                       <option value="College, school or society">College, school or society</option>
                       <option value="Company">Company</option>
@@ -365,9 +386,7 @@ export const CollaboratePage: React.FC = () => {
                   />
                 </div>
 
-                {error && (
-                  <p className="text-xs text-[#ff8a5c] font-medium">{error}</p>
-                )}
+                {error && <p className="text-xs text-[#ff8a5c] font-medium">{error}</p>}
 
                 <button
                   disabled={submitting}
@@ -379,12 +398,14 @@ export const CollaboratePage: React.FC = () => {
                 </button>
 
                 <p className="text-center text-xs text-[#8a8b93]">
-                  FitMeet hosts every meet. Collaborators support with space, expertise or sponsorship.
+                  FitMeet hosts every meet. Collaborators support with space, expertise or
+                  sponsorship.
                 </p>
 
                 {success && (
                   <div className="p-3.5 rounded-md bg-[#ff5a00]/10 border border-[#ff5a00]/40 text-[#ffd2bd] text-xs">
-                    Thanks! WhatsApp is opening with your request. Just hit send and we’ll get back to you within 48 hours.
+                    Thanks! WhatsApp is opening with your request. Just hit send and we’ll get back
+                    to you within 48 hours.
                   </div>
                 )}
               </form>
